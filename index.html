@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/Node.js"></script>
+    <script src="js/Graph.js"></script>
+    <script src="js/GraphLoader.js"></script>
+    <script>
+        const loader = new GraphLoader();
+        const g = loader.loadGraph("defaultGraphs/adam.json");
+        g.then(graph => console.log(graph.computeExternalFace()));
+    </script>
+
+</head>
+<body>
+
+</body>
+</html>
