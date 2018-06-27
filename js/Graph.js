@@ -17,7 +17,7 @@ class Graph {
      * @returns {Array}
      */
     computeExternalFace(startRandom = false) {
-        let indexFirst = startRandom === false ? 1 : Math.floor(Math.random() * this.nodes);
+        let indexFirst = startRandom === false ? 0 : Math.floor(Math.random() * this.nodes.length);
 
         let node = this.nodes[indexFirst];
         const firstNode = node;
