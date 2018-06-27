@@ -14,7 +14,7 @@ class Graph {
      * returned. An error is also pushed in a queue
      * @param startRandom : true if the starting node should be chosen randomly, false
      *        means that the first node of the graph is chosen
-     * @returns {Array}
+     * @returns {Array} a sequence of node composing the external face
      */
     computeExternalFace(startRandom = false) {
         let indexFirst = startRandom === false ? 0 : Math.floor(Math.random() * this.nodes.length);
