@@ -1,19 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        #svgCanvas {
+            background-color: gray;
+        }
+
+        line {
+            stroke: lawngreen;
+        }
+    </style>
+
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="js/RaphsonNewtonAlgorithm.js"></script>
+    <script src="js/Renderer.js"></script>
+    <script src="js/Edge.js"></script>
     <script src="js/Node.js"></script>
     <script src="js/Graph.js"></script>
     <script src="js/GraphLoader.js"></script>
-    <script>
-        const loader = new GraphLoader();
-        const g = loader.loadGraph("defaultGraphs/adam.json");
-        g.then(graph => console.log(graph.computeExternalFace()));
-    </script>
+
 
 </head>
 <body>
+
+<svg id="svgCanvas" width="640", height="480">
+
+</svg>
+
+<script>
+    const loader = new GraphLoader();
+    const g = loader.loadGraph("defaultGraphs/adam.json");
+    g.then(graph => {
+        renderer = new Renderer(graph);
+
+        renderer.render();
+    });
+</script>
 
 </body>
 </html>
