@@ -26,7 +26,11 @@ class GraphLoader {
         });
 
         const edgeId2edge = new Map();
-        jsonEncodedGraph.edges.forEach(edge => edgeId2edge.set(edge.id, edge));
+        jsonEncodedGraph.edges.forEach(edge => {
+            const currentEdge = new Edge(id2node.get(edge.u), id2node.get(edge.v), edge.directed);
+            graph.addEdge(currentEdge);
+            edgeId2edge.set(edge.id, edge);
+        });
 
         id2node.forEach(node => {
            node.rotationScheme.forEach(edgeId => {
