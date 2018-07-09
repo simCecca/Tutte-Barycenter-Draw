@@ -9,13 +9,16 @@ class Renderer {
     }
 
     renderNodes(nodes) {
-
-        const svgNodes = this.svgElement.selectAll("cicle")
-            .data(nodes, d => d.id);
+        const svgNodes = this.svgElement.selectAll("circle")
+            .data(nodes);
 
         svgNodes.enter()
             .append("circle")
             .attr("r", 10)
+            .call(d3.drag()
+                .on("start", node => {node.wasFixed = node.isFixed; node.isFixed = true;})
+                .on("end", node => {node.isFixed = node.wasFixed;})
+                .on("drag", node => {node.x = d3.event.x; node.y = d3.event.y;}))
             .merge(svgNodes)
             .attr("cx", node => node.x)
             .attr("cy", node => node.y);
@@ -35,7 +38,7 @@ class Renderer {
     }
 
     render() {
-        // TODO: this.algorithm.performNextPositions();
+        this.algorithm.computeNextPositions();
         this.renderEdges(this.graph.edges);
         this.renderNodes(this.graph.nodes)
     }

@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        #svgCanvas {
-            background-color: gray;
-        }
 
-        line {
-            stroke: lawngreen;
-        }
-    </style>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+
     <title>Title</title>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="js/RaphsonNewtonAlgorithm.js"></script>
     <script src="js/Renderer.js"></script>
     <script src="js/Edge.js"></script>
@@ -21,23 +17,47 @@
     <script src="js/Graph.js"></script>
     <script src="js/GraphLoader.js"></script>
 
+    <script src="js/sidenav/sidenavControl.js"></script>
 
 </head>
 <body>
+    <span class="optionsbtn" onclick="openNav()">&#9776; options</span>
 
-<svg id="svgCanvas" width="640", height="480">
 
-</svg>
+    <svg id="svgCanvas" width="640" height="480"></svg>
 
-<script>
-    const loader = new GraphLoader();
-    const g = loader.loadGraph("defaultGraphs/adam.json");
-    g.then(graph => {
-        renderer = new Renderer(graph);
+    <div id="mySidenav" class="sidenav">
+        <div class="sidenavContent">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <h3>Choose a graph</h3>
+            <p>-Load graph</p>
+            <input type="file" value="Choose a graph">
 
-        renderer.render();
-    });
-</script>
+            <p>-Predefined graphs</p>
+            <select onchange="onPredefinedGraphSelectChange(this.value)">
+                <option value="" selected disabled>Choose a predefined graph</option>
+                <option value="defaultGraphs/adam.json">adam</option>
+                <option value="defaultGraphs/rect.json">rect</option>
+            </select>
 
+            <p>-From server</p>
+            <span>Server location:</span>
+            <input type="text" value="localhost:4919" placeholder="name:port">
+            <br><br>
+            <input type="button" value="get from server">
+            <hr>
+            <h3>Rendering</h3>
+            <p>-Rendering speed:</p>
+            <input type="range" min="1" max="100" value="0.1" oninput="showRenderSpeed(this.value)"
+                   onchange="showRenderSpeed(this.value)">
+            <span id="renderSpeed">0.01</span>
+
+            <p>-Labels</p>
+            <label><input type="checkbox">Show node labels</label><br />
+            <label><input type="checkbox">Show edge labels</label>
+
+
+        </div>
+    </div>
 </body>
 </html>

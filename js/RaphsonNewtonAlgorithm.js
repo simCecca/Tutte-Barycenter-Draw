@@ -7,6 +7,7 @@ class RaphsonNewtonAlgorithm {
         this.width = width;
         this.height = height;
 
+        this.graph.nodes.forEach(node => {node.x = width/2; node.y = height/2;});
         this._positionExternalFace();
     }
 
@@ -19,15 +20,17 @@ class RaphsonNewtonAlgorithm {
         const halfHeight = this.height / 2;
         const offset = 20;
 
+        const angleAdder = externalFace.length % 2 === 0 ? slice/2 : Math.PI/2;
+
         externalFace.forEach((node, i) => {
-            node.x = halfWidth + Math.cos(slice * i) * (halfWidth - offset);
-            node.y = halfHeight - Math.sin(slice * i) * (halfHeight - offset);
-            console.log(node.x, node.y)
+            node.x = halfWidth + Math.cos(slice * i + angleAdder) * (halfWidth - offset);
+            node.y = halfHeight - Math.sin(slice * i + angleAdder) * (halfHeight - offset);
         });
     }
 
     computeNextPositions(){
-        this.graph.forEach((node) => {
+        this.graph.nodes.forEach((node) => {
+            if (node.isFixed === true) return;
             let sumX = 0;
             let sumY = 0;
             node.neighbours.forEach((neighbour) => {
@@ -35,8 +38,10 @@ class RaphsonNewtonAlgorithm {
                 sumY += neighbour.y;
             });
 
-            node.x = sumX / node.neighbours.length;
-            node.y = sumY / node.neighbours.length;
+            const nextX = sumX / node.neighbours.length;
+            const nextY = sumY / node.neighbours.length;
+            node.x += (nextX - node.x) * 0.01;
+            node.y += (nextY - node.y) * 0.01;
         });
     }
 
