@@ -24,8 +24,20 @@ class RaphsonNewtonAlgorithm {
             node.y = halfHeight - Math.sin(slice * i) * (halfHeight - offset);
             console.log(node.x, node.y)
         });
+    }
 
+    computeNextPositions(){
+        this.graph.forEach((node) => {
+            let sumX = 0;
+            let sumY = 0;
+            node.neighbours.forEach((neighbour) => {
+                sumX += neighbour.x;
+                sumY += neighbour.y;
+            });
 
+            node.x = sumX / node.neighbours.length;
+            node.y = sumY / node.neighbours.length;
+        });
     }
 
 
