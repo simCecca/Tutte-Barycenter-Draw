@@ -4,14 +4,25 @@ class Renderer {
     constructor() {
         this.svgElement = d3.select("#svgCanvas");
         this.graph = null;
-        this.algorithm = null;
+        this.algorithm = new RaphsonNewtonAlgorithm(new Graph(), window.innerWidth, window.innerHeight); // Dummy graph
     }
 
     setGraph(graph) {
         this.emptyCanvas();
         this.graph = graph;
-        this.algorithm = new RaphsonNewtonAlgorithm(graph, window.innerWidth, innerHeight);
+        this.algorithm.setGraph(graph);
     }
+
+    setSize(width, height) {
+        this.algorithm.width = width;
+        this.algorithm.height = height;
+        this.algorithm.positionExternalFace();
+    }
+
+    setRenderSpeed(speed) {
+        this.algorithm.renderSpeed = speed;
+    }
+
 
     emptyCanvas() {
         this.svgElement.html("");

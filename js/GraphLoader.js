@@ -1,16 +1,18 @@
 
 class GraphLoader {
 
-    async _fetchGraphJSON(path) {
+    async loadEncodedFromServer(path) {
         const response = await fetch(path);
-
-        const result = await response.json();
-
-        return new Promise(resolve => resolve(result));
+        const jsonGraph = await response.json();
+        return this.loadGraph(jsonGraph);
     }
 
-    async loadGraph(path) {
-        const jsonEncodedGraph = await this._fetchGraphJSON(path);
+    async loadFromFile(file) {
+        const jsonGraph = await new GraphFileLoader().load(file);
+        return this.loadGraph(jsonGraph);
+    }
+
+    loadGraph(jsonEncodedGraph) {
 
         const graph = new Graph();
 
