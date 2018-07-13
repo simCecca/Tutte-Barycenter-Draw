@@ -1,11 +1,20 @@
 
 class Renderer {
 
-    constructor(graph) {
-        this.graph = graph;
-        this.algorithm = new RaphsonNewtonAlgorithm(graph, 640, 480);
+    constructor() {
+        this.svgElement = d3.select("#svgCanvas");
+        this.graph = null;
+        this.algorithm = null;
+    }
 
-        this.svgElement = d3.select("#svgCanvas")
+    setGraph(graph) {
+        this.emptyCanvas();
+        this.graph = graph;
+        this.algorithm = new RaphsonNewtonAlgorithm(graph, window.innerWidth, innerHeight);
+    }
+
+    emptyCanvas() {
+        this.svgElement.html("");
     }
 
     renderNodes(nodes) {
@@ -22,6 +31,7 @@ class Renderer {
             .merge(svgNodes)
             .attr("cx", node => node.x)
             .attr("cy", node => node.y);
+
     }
 
     renderEdges(edges) {

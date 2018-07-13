@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
 
-    <title>Title</title>
+    <title>Tutte Barycenter Draw</title>
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="js/RaphsonNewtonAlgorithm.js"></script>
@@ -17,24 +17,22 @@
     <script src="js/Graph.js"></script>
     <script src="js/GraphLoader.js"></script>
 
-    <script src="js/sidenav/sidenavControl.js"></script>
 
 </head>
 <body>
-    <span class="optionsbtn" onclick="openNav()">&#9776; options</span>
+    <svg id="svgCanvas" onclick="ctrl.closeNav()"></svg>
 
-
-    <svg id="svgCanvas" width="640" height="480"></svg>
+    <span class="optionsbtn" onclick="ctrl.openNav()">&#9776; options</span>
 
     <div id="mySidenav" class="sidenav">
         <div class="sidenavContent">
-            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeNav()">&times;</a>
             <h3>Choose a graph</h3>
             <p>-Load graph</p>
             <input type="file" value="Choose a graph">
 
             <p>-Predefined graphs</p>
-            <select onchange="onPredefinedGraphSelectChange(this.value)">
+            <select onchange="ctrl.onPredefinedGraphSelectChange(this.value)">
                 <option value="" selected disabled>Choose a predefined graph</option>
                 <option value="defaultGraphs/adam.json">adam</option>
                 <option value="defaultGraphs/rect.json">rect</option>
@@ -42,14 +40,16 @@
 
             <p>-From server</p>
             <span>Server location:</span>
-            <input type="text" value="localhost:4919" placeholder="name:port">
+            <input type="text" value="localhost:4919" placeholder="name:port"><br />
+            <span>Nodes: </span><input type="text" placeholder="#nodes" value="10">
+            <span>Edges: </span><input type="text" placeholder="#edges" value="20">
             <br><br>
             <input type="button" value="get from server">
             <hr>
             <h3>Rendering</h3>
             <p>-Rendering speed:</p>
-            <input type="range" min="1" max="100" value="0.1" oninput="showRenderSpeed(this.value)"
-                   onchange="showRenderSpeed(this.value)">
+            <input type="range" min="1" max="1000" value="10" oninput="ctrl.showRenderSpeed(this.value)"
+                   onchange="ctrl.showRenderSpeed(this.value)">
             <span id="renderSpeed">0.01</span>
 
             <p>-Labels</p>
@@ -59,5 +59,11 @@
 
         </div>
     </div>
+
+    <script type="module">
+        import {controller} from "./js/sidenav/sidenavControl.js";
+        window.ctrl = controller;
+    </script>
+
 </body>
 </html>

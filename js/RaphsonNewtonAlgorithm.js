@@ -7,11 +7,13 @@ class RaphsonNewtonAlgorithm {
         this.width = width;
         this.height = height;
 
+        this.renderSpeed = 1.0;
+
         this.graph.nodes.forEach(node => {node.x = width/2; node.y = height/2;});
-        this._positionExternalFace();
+        this.positionExternalFace();
     }
 
-    _positionExternalFace(){
+    positionExternalFace(){
         const externalFace = this.graph.computeExternalFace();
 
         const numberOfNodes = externalFace.length;
@@ -40,8 +42,8 @@ class RaphsonNewtonAlgorithm {
 
             const nextX = sumX / node.neighbours.length;
             const nextY = sumY / node.neighbours.length;
-            node.x += (nextX - node.x) * 0.01;
-            node.y += (nextY - node.y) * 0.01;
+            node.x += (nextX - node.x) * this.renderSpeed;
+            node.y += (nextY - node.y) * this.renderSpeed;
         });
     }
 
