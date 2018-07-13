@@ -17,6 +17,7 @@
     <script src="js/Node.js"></script>
     <script src="js/Graph.js"></script>
     <script src="js/GraphLoader.js"></script>
+    <script src="js/GMLtoJSON.js"></script>
 
 
 </head>
@@ -42,8 +43,8 @@
             <p>-From server</p>
             <span>Server location:</span>
             <input type="text" value="localhost:4919" placeholder="name:port"><br />
-            <span>Nodes: </span><input type="text" class="optionText" placeholder="#nodes" value="10">
-            <span>Edges: </span><input type="text" class="optionText" placeholder="#edges" value="20">
+            <span>Nodes: </span><input type="text" placeholder="#nodes" value="10">
+            <span>Edges: </span><input type="text" placeholder="#edges" value="20">
             <br><br>
             <input type="button" value="get from server">
             <hr>
@@ -56,8 +57,7 @@
             <p>-Labels</p>
             <label><input type="checkbox">Show node labels</label><br />
             <label><input type="checkbox">Show edge labels</label>
-            <br />
-            <br />
+
 
         </div>
     </div>
