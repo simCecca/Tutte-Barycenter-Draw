@@ -25,6 +25,7 @@ class Graph {
         let indexFirst = startRandom === false ? 0 : Math.floor(Math.random() * this.nodes.length);
 
         let node = this.nodes[indexFirst];
+        if (node === undefined) return []; // empty graph -> empty external face
         const firstNode = node;
         let prevEdge = node.rotationScheme[node.rotationScheme.length - 1];
 

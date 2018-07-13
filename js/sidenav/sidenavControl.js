@@ -2,55 +2,69 @@ class Controller {
 
     constructor() {
         this.renderer = new Renderer();
-        this.renderSpeed = 0.1;
 
         window.addEventListener("resize", () => this.onWindowSizeChange());
+
+        this.loader = new GraphLoader();
+
     }
 
     openNav() {
-        document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("sidemenu").style.width = "250px";
     }
 
     closeNav() {
-        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("sidemenu").style.width = "0";
+    }
+
+    showError(msg) {
+        document.getElementById("errorDialog").style.top = "0";
+
+        document.getElementById("errorMsg").innerText = msg;
+    }
+
+    closeErrorDialog() {
+        document.getElementById("errorDialog").style.top = "-100%";
     }
 
     onWindowSizeChange() {
-        if (this.renderer.algorithm !== null) {
-            this.renderer.algorithm.width = window.innerWidth;
-            this.renderer.algorithm.height = window.innerHeight;
-            this.renderer.algorithm.positionExternalFace();
-        }
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     }
 
     showRenderSpeed(value) {
-        this.renderSpeed = parseInt(value) / 1000;
+        const speed = parseInt(value) / 1000;
 
-        document.getElementById("renderSpeed").textContent = this.renderSpeed;
-        if (this.renderer.algorithm !== null)
-            this.renderer.algorithm.renderSpeed = this.renderSpeed;
+        document.getElementById("renderSpeed").textContent = speed;
+        this.renderer.setRenderSpeed(speed);
     }
 
     onPredefinedGraphSelectChange(value) {
-        this.drawGraph(value);
+            this.loader.loadEncodedFromServer(value)
+                .then(graph => this.drawGraph(graph))
+                .catch(err => this.showError(err));
     }
 
-    drawGraph(graphUrl) {
-        const loader = new GraphLoader();
-        const g = loader.loadGraph(graphUrl);
-        g.then(graph => {
+    onFileSelect(evt) {
+        const files = evt.target.files;
+        const file = files[0];
 
-            this.renderer.setGraph(graph);
-            this.renderer.algorithm.renderSpeed = this.renderSpeed;
+        this.loader.loadFromFile(file)
+            .then(graph => this.drawGraph(graph))
+            .catch(err => this.showError(err));
+    }
 
-            const renderFunction = () => {
-                this.renderer.render();
-                requestAnimationFrame(renderFunction);
-            };
+    drawGraph(graph) {
+        this.closeNav();
+        this.renderer.setGraph(graph);
 
-            requestAnimationFrame(renderFunction)
-        });
+        const renderFunction = () => {
+            this.renderer.render();
+            requestAnimationFrame(renderFunction);
+        };
+
+        requestAnimationFrame(renderFunction)
+
     }
 }
 

@@ -3,13 +3,17 @@
 class RaphsonNewtonAlgorithm {
 
     constructor(graph, width, height){
-        this.graph = graph;
+        this.graph = null;
         this.width = width;
         this.height = height;
 
         this.renderSpeed = 1.0;
+        this.setGraph(graph);
+    }
 
-        this.graph.nodes.forEach(node => {node.x = width/2; node.y = height/2;});
+    setGraph(graph) {
+        this.graph = graph;
+        this.graph.nodes.forEach(node => {node.x = this.width/2; node.y = this.height/2;});
         this.positionExternalFace();
     }
 
