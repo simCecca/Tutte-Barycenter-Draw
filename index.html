@@ -16,6 +16,7 @@
     <script src="js/Node.js"></script>
     <script src="js/Graph.js"></script>
     <script src="js/GraphLoader.js"></script>
+    <script src="js/GMLtoJSON.js"></script>
 
 
 </head>
@@ -63,6 +64,8 @@
     <script type="module">
         import {controller} from "./js/sidenav/sidenavControl.js";
         window.ctrl = controller;
+        new GMLtoJSON().loadGML("http://localhost:1234/graph")
+            .then(g => console.log(g));
     </script>
 
 </body>
