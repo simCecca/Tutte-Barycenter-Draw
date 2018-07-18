@@ -12,6 +12,11 @@ class GraphLoader {
         return this.loadGraph(jsonGraph);
     }
 
+    async loadFromServer(path) {
+        const jsonGraph = await new GraphGLMFromServerLoader().loadGML(path);
+        return this.loadGraph(jsonGraph);
+    }
+
     loadGraph(jsonEncodedGraph) {
 
         const graph = new Graph();
