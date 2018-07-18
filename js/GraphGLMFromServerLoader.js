@@ -1,4 +1,4 @@
-class GMLtoJSON{
+class GraphGLMFromServerLoader{
 
     async _fetchGML(path) {
         const gml = await fetch(path);

@@ -54,6 +54,19 @@ class Controller {
             .catch(err => this.showError(err));
     }
 
+    onGetFromServer() {
+        const numOfNodes = document.getElementById("numOfNodes").value;
+        const numOfEdges = document.getElementById("numOfEdges").value;
+
+        const requestPath = document.getElementById("serverLocation").value;
+        const requestQuery = `http://${requestPath}?nodes=${numOfNodes}&edges=${numOfEdges}`;
+
+        console.log(requestQuery);
+        this.loader.loadFromServer(requestQuery)
+            .then(graph => this.drawGraph(graph))
+            .catch(err => this.showError(err));
+    }
+
     drawGraph(graph) {
         this.closeNav();
         this.renderer.setGraph(graph);
