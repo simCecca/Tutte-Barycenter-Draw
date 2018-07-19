@@ -23,6 +23,7 @@ class GraphLoader {
 
         const id2node = new Map();
         jsonEncodedGraph.nodes.forEach(node => {
+
             const id = node.id;
             const label = node.label;
 
@@ -34,13 +35,16 @@ class GraphLoader {
 
         const edgeId2edge = new Map();
         jsonEncodedGraph.edges.forEach(edge => {
+
             const currentEdge = new Edge(id2node.get(edge.u), id2node.get(edge.v), edge.directed);
+
             graph.addEdge(currentEdge);
             edgeId2edge.set(edge.id, edge);
         });
 
         id2node.forEach(node => {
            node.rotationScheme.forEach(edgeId => {
+
                const edge = edgeId2edge.get(edgeId);
 
                let neighbour = edge.u !== node.id ? id2node.get(edge.u) : id2node.get(edge.v);
