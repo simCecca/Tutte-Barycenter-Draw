@@ -12,7 +12,7 @@ class GraphLoader {
         return this.loadGraph(jsonGraph);
     }
 
-    async loadFromServer(path) {
+    async loadGLMFromServer(path) {
         const jsonGraph = await new GraphGLMFromServerLoader().loadGML(path);
         return this.loadGraph(jsonGraph);
     }
@@ -35,8 +35,8 @@ class GraphLoader {
 
         const edgeId2edge = new Map();
         jsonEncodedGraph.edges.forEach(edge => {
-
-            const currentEdge = new Edge(id2node.get(edge.u), id2node.get(edge.v), edge.directed);
+            const currentEdge = new Edge(id2node.get(edge.u), id2node.get(edge.v),
+                edge.label, edge.directed || jsonEncodedGraph.directed);
 
             graph.addEdge(currentEdge);
             edgeId2edge.set(edge.id, edge);

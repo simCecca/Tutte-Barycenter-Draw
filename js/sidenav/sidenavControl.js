@@ -42,7 +42,8 @@ class Controller {
     onPredefinedGraphSelectChange(value) {
             this.loader.loadEncodedFromServer(value)
                 .then(graph => this.drawGraph(graph))
-                .catch(err => this.showError(err));
+                .catch(err => this.showError("You need to run this website on a server to use this feature." +
+                    "You can still open predefined graphs by loading them from file"));
     }
 
     onFileSelect(evt) {
@@ -61,10 +62,17 @@ class Controller {
         const requestPath = document.getElementById("serverLocation").value;
         const requestQuery = `http://${requestPath}?nodes=${numOfNodes}&edges=${numOfEdges}`;
 
-        console.log(requestQuery);
-        this.loader.loadFromServer(requestQuery)
+        this.loader.loadGLMFromServer(requestQuery)
             .then(graph => this.drawGraph(graph))
             .catch(err => this.showError(err));
+    }
+
+    onShowNodeLabelsChange(chkbox) {
+        this.renderer.setRenderNodeLabels(chkbox.checked);
+    }
+
+    onShowEdgeLabelsChange(chkbox) {
+        this.renderer.setRenderEdgeLabels(chkbox.checked);
     }
 
     drawGraph(graph) {
@@ -81,5 +89,4 @@ class Controller {
     }
 }
 
-const controller = new Controller();
-export {controller};
+const ctrl = new Controller();

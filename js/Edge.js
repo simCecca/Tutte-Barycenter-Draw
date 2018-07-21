@@ -1,9 +1,10 @@
 
 class Edge{
 
-    constructor(source, target,  directed = false){
+    constructor(source, target, label="", directed = false){
         this.source = source;
         this.target = target;
+        this.label = label;
         this.directed = directed;
     }
 

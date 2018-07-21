@@ -9,3 +9,8 @@ circle {
     stroke: black;
     transform-origin: center;
 }
+
+text {
+    color: #111111;
+    font-size: 10px;
+}

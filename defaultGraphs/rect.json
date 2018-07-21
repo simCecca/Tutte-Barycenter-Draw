@@ -1,6 +1,7 @@
 {
   "nodes": [
     {"id": 1,
+      "label": "I'm a node :)",
       "rotationScheme": ["e1", "e4"]},
     {"id": 2,
       "rotationScheme": ["e2", "e1"]},
@@ -12,6 +13,8 @@
 
   "edges": [
     {"id": "e1",
+      "label": "I'm an edge",
+      "directed": true,
       "u": 1, "v": 2},
     {"id": "e2",
       "u": 2, "v": 3},

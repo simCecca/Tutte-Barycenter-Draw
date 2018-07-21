@@ -39,6 +39,8 @@
             <select onchange="ctrl.onPredefinedGraphSelectChange(this.value)">
                 <option value="" selected disabled>Choose a predefined graph</option>
                 <option value="defaultGraphs/adam.json">adam</option>
+                <option value="defaultGraphs/adam_directed.json">adam directed</option>
+
                 <option value="defaultGraphs/rect.json">rect</option>
             </select>
 
@@ -57,8 +59,8 @@
             <span id="renderSpeed">0.01</span>
 
             <p>-Labels</p>
-            <label><input type="checkbox">Show node labels</label><br />
-            <label><input type="checkbox">Show edge labels</label>
+            <label><input type="checkbox" onchange="ctrl.onShowNodeLabelsChange(this)">Show node labels</label><br />
+            <label><input type="checkbox" onchange="ctrl.onShowEdgeLabelsChange(this)">Show edge labels</label>
 
 
         </div>
@@ -71,10 +73,9 @@
         <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeErrorDialog()">&times;</a>
     </div>
 
-    <script type="module">
-        import {controller} from "./js/sidenav/sidenavControl.js";
-        window.ctrl = controller;
-        controller.openNav();
+    <script src="js/sidenav/sidenavControl.js"></script>
+    <script>
+        ctrl.openNav();
     </script>
 
 </body>

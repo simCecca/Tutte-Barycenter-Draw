@@ -7,7 +7,7 @@ class GraphGLMFromServerLoader{
     }
 
     _parseGML(text){
-        const jsonGraph = {"nodes":[], "edges":[] };
+        const jsonGraph = {"directed": false ,"nodes":[], "edges":[] };
         const splitGml = text.split("\n");
         let isANode = false;
         let isAEdge = false;
@@ -15,12 +15,12 @@ class GraphGLMFromServerLoader{
         //u is the source and v is the target
         let currentEdge = {"id":0, "u":0, "v":0};
         splitGml.forEach(line => {
-            /*
+
            if(/ *direct/.test(line)){
                const splitLine = line.split(" ");
                jsonGraph.directed = splitLine[splitLine.length - 1];
            }
-           else*/ if(/ *node/.test(line)){
+           else if(/ *node/.test(line)){
                isANode = true;
            }
            else if(/ *edge/.test(line)){

@@ -1,4 +1,5 @@
 {
+  "directed": true,
   "nodes": [
     {"id": 1,
     "rotationScheme": ["e1", "e2", "e3"]},
