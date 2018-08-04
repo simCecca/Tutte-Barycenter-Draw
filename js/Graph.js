@@ -21,9 +21,9 @@ class Graph {
      *        means that the first node of the graph is chosen
      * @returns {Array} a sequence of nodes composing the external face
      */
-    computeExternalFace(startRandom = false) {
+    computeExternalFace(startRandom = true) {
         let indexFirst = startRandom === false ? 0 : Math.floor(Math.random() * this.nodes.length);
-
+        console.log(indexFirst);
         let node = this.nodes[indexFirst];
         if (node === undefined) return []; // empty graph -> empty external face
         const firstNode = node;

@@ -18,7 +18,7 @@ class GraphGLMFromServerLoader{
 
            if(/ *direct/.test(line)){
                const splitLine = line.split(" ");
-               jsonGraph.directed = splitLine[splitLine.length - 1];
+               jsonGraph.directed = (splitLine[splitLine.length - 1] == "1") ? true : false;
            }
            else if(/ *node/.test(line)){
                isANode = true;
