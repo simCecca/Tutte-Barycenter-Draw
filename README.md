@@ -1,2 +1,1 @@
-# Tutte-Barycenter-Draw
-Project for the InfoVis course
+# See The Wiki Section
