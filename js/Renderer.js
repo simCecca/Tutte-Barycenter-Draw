@@ -2,9 +2,14 @@
 class Renderer {
 
     constructor() {
-        this.svgElement = d3.select("#svgCanvas");
+        this.svgElement = d3.select("#svgCanvas")
+        .call(d3.zoom().on("zoom", () => {
+            this.svgElement.attr("transform", d3.event.transform)
+        }))
+        .append("g")
+
         this.graph = null;
-        this.algorithm = new RaphsonNewtonAlgorithm(new Graph(), window.innerWidth, window.innerHeight); // Dummy graph
+        this.algorithm = new SpringEmbeddersAlgorithm(new Graph(), window.innerWidth, window.innerHeight); // Dummy graph
         this.algorithm.renderSpeed = 0.01;
 
         this.renderNodeLabels = false;
@@ -45,9 +50,7 @@ class Renderer {
     }
 
     setSize(width, height) {
-        this.algorithm.width = width;
-        this.algorithm.height = height;
-        this.algorithm.positionExternalFace();
+        this.algorithm.positionExternalFace(width, height);
     }
 
     setRenderSpeed(speed) {
@@ -65,9 +68,9 @@ class Renderer {
 
         svgNodes.enter()
             .append("circle")
-            .attr("r", 7)
-            .on("mouseover", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 10)})
-            .on("mouseout", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 7);})
+            .attr("r", 3)
+            .on("mouseover", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 5)})
+            .on("mouseout", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 3);})
             .call(d3.drag()
                 .on("start", node => {node.wasFixed = node.isFixed; node.isFixed = true;})
                 .on("end", node => {node.isFixed = node.wasFixed;})
@@ -111,7 +114,12 @@ class Renderer {
     }
 
     render() {
+        const  a = performance.now();
         this.algorithm.computeNextPositions();
+        const b = performance.now();
+        console.log('Calculations: ' + (b - a) + ' ms.');
+
+        const  c = performance.now();
         this.renderEdges(this.graph.edges);
         this.renderNodes(this.graph.nodes);
 
@@ -121,6 +129,9 @@ class Renderer {
         if (this.renderEdgeLabels === true)
             this.renderLabels(this.graph.edges, "edges", e => [(e.source.x + e.target.x)/2,
                 (e.source.y + e.target.y)/2 - 10]);
+
+        const d = performance.now();
+        console.log('rendering ' + (d - c) + ' ms.');
     }
 
 }

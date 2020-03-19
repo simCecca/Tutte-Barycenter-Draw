@@ -1,5 +1,4 @@
 
-
 class RaphsonNewtonAlgorithm {
 
     constructor(graph, width, height){
@@ -17,7 +16,7 @@ class RaphsonNewtonAlgorithm {
         this.positionExternalFace();
     }
 
-    positionExternalFace(){
+    positionExternalFace() {
         const externalFace = this.graph.computeExternalFace();
 
         const numberOfNodes = externalFace.length;
@@ -34,7 +33,13 @@ class RaphsonNewtonAlgorithm {
         });
     }
 
-    computeNextPositions(){
+    onCanvasSizeChanged(width, height) {
+        this.width = width;
+        this.height = height;
+        this.positionExternalFace();
+    }
+
+    computeNextPositions() {
         this.graph.nodes.forEach((node) => {
             if (node.isFixed === true) return;
             let sumX = 0;
@@ -50,8 +55,4 @@ class RaphsonNewtonAlgorithm {
             node.y += (nextY - node.y) * this.renderSpeed;
         });
     }
-
-
-
-
 }

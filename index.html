@@ -14,6 +14,7 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="js/GraphFileLoader.js"></script>
     <script src="js/RaphsonNewtonAlgorithm.js"></script>
+    <script src="js/SpringEmbeddersAlgorithm.js"></script>
     <script src="js/Renderer.js"></script>
     <script src="js/Edge.js"></script>
     <script src="js/Node.js"></script>
@@ -52,7 +53,12 @@
             <br><br>
             <input type="button" value="get from server" onclick="ctrl.onGetFromServer()">
             <hr>
-            <h3>Rendering</h3>
+            <h3>Algorithm</h3>
+            <select onchange="ctrl.onAlgorithmChanged(this.value)">
+                <option value="Tutte">Tutte Barycenter</option>
+                <option value="SpringEmbedders">Spring Embedders</option>
+                <option value="SpringEmbeddersGPU">Spring Embedders GPU</option>
+            </select>
             <p>-Rendering speed:</p>
             <input type="range" min="1" max="1000" value="10" oninput="ctrl.showRenderSpeed(this.value)"
                    onchange="ctrl.showRenderSpeed(this.value)">

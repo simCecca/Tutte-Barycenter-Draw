@@ -8,15 +8,15 @@ class Graph {
         this.nodes.push(node);
     }
 
-    addEdge(edge){  this.edges.push(edge);
-
+    addEdge(edge){  
+        this.edges.push(edge);
     }
 
     /**
      * Computes and returns an array of nodes which should
      * represent the external convex face.
      * Should this not be possible, an arbitrary set of nodes is
-     * returned. An error is also pushed in a queue
+     * returned.
      * @param startRandom : true if the starting node should be chosen randomly, false
      *        means that the first node of the graph is chosen
      * @returns {Array} a sequence of nodes composing the external face
