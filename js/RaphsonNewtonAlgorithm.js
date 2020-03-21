@@ -6,17 +6,29 @@ class RaphsonNewtonAlgorithm {
         this.width = width;
         this.height = height;
 
-        this.renderSpeed = 1.0;
+        this.speed = 0.01;
+
         this.setGraph(graph);
+    }
+
+    setProperties(properties) {
+        this.speed = properties.speed || this.speed;
     }
 
     setGraph(graph) {
         this.graph = graph;
-        this.graph.nodes.forEach(node => {node.x = this.width/2; node.y = this.height/2;});
+        this.graph.nodes.forEach(node => {
+            node.x = this.width/2;
+            node.y = this.height/2;
+            node.isFixed = false;
+        });
         this.positionExternalFace();
     }
 
     positionExternalFace() {
+        // remove unlock fixed nodes
+        this.graph.nodes.forEach(node => { node.isFixed = false; });
+
         const externalFace = this.graph.computeExternalFace();
 
         const numberOfNodes = externalFace.length;
@@ -28,6 +40,7 @@ class RaphsonNewtonAlgorithm {
         const angleAdder = externalFace.length % 2 === 0 ? slice/2 : Math.PI/2;
 
         externalFace.forEach((node, i) => {
+            node.isFixed = true;
             node.x = halfWidth + Math.cos(slice * i + angleAdder) * (halfWidth - offset);
             node.y = halfHeight - Math.sin(slice * i + angleAdder) * (halfHeight - offset);
         });
@@ -51,8 +64,8 @@ class RaphsonNewtonAlgorithm {
 
             const nextX = sumX / node.neighbours.length;
             const nextY = sumY / node.neighbours.length;
-            node.x += (nextX - node.x) * this.renderSpeed;
-            node.y += (nextY - node.y) * this.renderSpeed;
+            node.x += (nextX - node.x) * this.speed;
+            node.y += (nextY - node.y) * this.speed;
         });
     }
 }

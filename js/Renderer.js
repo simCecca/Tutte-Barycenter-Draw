@@ -9,8 +9,6 @@ class Renderer {
         .append("g")
 
         this.graph = null;
-        this.algorithm = new SpringEmbeddersAlgorithm(new Graph(), window.innerWidth, window.innerHeight); // Dummy graph
-        this.algorithm.renderSpeed = 0.01;
 
         this.renderNodeLabels = false;
         this.renderEdgeLabels = false;
@@ -46,17 +44,11 @@ class Renderer {
         this.emptyCanvas();
         this.createArrowDef();
         this.graph = graph;
-        this.algorithm.setGraph(graph);
     }
 
     setSize(width, height) {
-        this.algorithm.positionExternalFace(width, height);
+        // d3 renderer doesn't do anything here
     }
-
-    setRenderSpeed(speed) {
-        this.algorithm.renderSpeed = speed;
-    }
-
 
     emptyCanvas() {
         this.svgElement.html("");
@@ -78,7 +70,6 @@ class Renderer {
             .merge(svgNodes)
             .attr("cx", node => node.x)
             .attr("cy", node => node.y);
-
     }
 
     renderEdges(edges) {
@@ -114,12 +105,6 @@ class Renderer {
     }
 
     render() {
-        const  a = performance.now();
-        this.algorithm.computeNextPositions();
-        const b = performance.now();
-        console.log('Calculations: ' + (b - a) + ' ms.');
-
-        const  c = performance.now();
         this.renderEdges(this.graph.edges);
         this.renderNodes(this.graph.nodes);
 
@@ -129,9 +114,6 @@ class Renderer {
         if (this.renderEdgeLabels === true)
             this.renderLabels(this.graph.edges, "edges", e => [(e.source.x + e.target.x)/2,
                 (e.source.y + e.target.y)/2 - 10]);
-
-        const d = performance.now();
-        console.log('rendering ' + (d - c) + ' ms.');
     }
 
 }

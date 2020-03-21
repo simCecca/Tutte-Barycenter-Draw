@@ -27,7 +27,7 @@ input.optionText {
 
 .errorDialog {
     color: white;
-    background-color: orangered;
+    background-color: darkslategrey;
     text-align: center;
     width: 25%;
     /* opacity: 0; */
@@ -36,15 +36,18 @@ input.optionText {
     top: -100%;
     left: 50%;
     position: fixed;
-    border: 2px solid black;
+    border: 2px solid darkgray;
     transform: translate(-50%, 0);
+    border-radius: 5px;
 }
 
 .errorDialog h1 {
+    color: coral;
     font-size: 24px;
 }
 
 .errorDialog a {
+    color: white;
     font-size: 24px;
     text-decoration: none;
 }
@@ -58,22 +61,33 @@ input.optionText {
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: #111;
+    background-color: #121f1f;
     overflow-x: hidden;
     transition: 0.5s;
-    padding-top: 60px;
 }
 
 .sidenavContent {
     margin-left: 5px;
 }
 
-.sidenav p {
-    margin-bottom: 3px;
-}
-
 .sidenav select {
     width: 80%;
+}
+
+.sidenav section {
+    margin-bottom: 0.5em;
+    padding-bottom: 0.75em;
+    border-bottom-color: rgba(240, 255, 240, 0.4);
+    border-bottom-width: 0.05em;
+    border-bottom-style: solid;
+}
+
+.sidenav section h3 {
+    margin-top: 0.5em;
+}
+
+.sidenav section h4 {
+    margin-bottom: 0.25em;
 }
 
 .sidenav a {

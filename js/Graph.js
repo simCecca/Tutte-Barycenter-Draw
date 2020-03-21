@@ -23,7 +23,6 @@ class Graph {
      */
     computeExternalFace(startRandom = true) {
         let indexFirst = startRandom === false ? 0 : Math.floor(Math.random() * this.nodes.length);
-        console.log(indexFirst);
         let node = this.nodes[indexFirst];
         if (node === undefined) return []; // empty graph -> empty external face
         const firstNode = node;
@@ -40,7 +39,6 @@ class Graph {
             }
             alreadyVisitedIds.add(node.id);
             externalFace.push(node);
-            node.isFixed = true;
 
             let i = 0;
             for (i = 0; i < node.rotationScheme.length; i++)

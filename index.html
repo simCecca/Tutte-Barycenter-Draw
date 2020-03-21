@@ -32,42 +32,59 @@
     <div id="sidemenu" class="sidenav">
         <div class="sidenavContent">
             <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeNav()">&times;</a>
-            <h3>Choose a graph</h3>
-            <p>-Load graph</p>
-            <input type="file" value="Choose a graph" onchange="ctrl.onFileSelect(event)">
 
-            <p>-Predefined graphs</p>
-            <select onchange="ctrl.onPredefinedGraphSelectChange(this.value)">
-                <option value="" selected disabled>Choose a predefined graph</option>
-                <option value="./defaultGraphs/adam.json">adam</option>
-                <option value="./defaultGraphs/adam_directed.json">adam directed</option>
+            <section>
+                <h3>Choose a graph</h3>
+                <h4>Load graph</h4>
+                <input type="file" value="Choose a graph" onchange="ctrl.onFileSelect(event)">
 
-                <option value="./defaultGraphs/rect.json">rect</option>
-            </select>
+                <h4>Predefined graphs</h4>
+                <select onchange="ctrl.onPredefinedGraphSelectChange(this.value)">
+                    <option value="" selected disabled>Choose a predefined graph</option>
+                    <option value="./defaultGraphs/adam.json">adam</option>
+                    <option value="./defaultGraphs/adam_directed.json">adam directed</option>
 
-            <p>-From server</p>
-            <span>Server location:</span>
-            <input type="text" value="localhost:1234/graph" placeholder="name:port" id="serverLocation"><br />
-            <span>Nodes: </span><input class="controllerInput" type="text" placeholder="#nodes" value="10" id="numOfNodes">
-            <span>Edges: </span><input class="controllerInput" type="text" placeholder="#edges" value="20" id="numOfEdges">
-            <br><br>
-            <input type="button" value="get from server" onclick="ctrl.onGetFromServer()">
-            <hr>
-            <h3>Algorithm</h3>
-            <select onchange="ctrl.onAlgorithmChanged(this.value)">
-                <option value="Tutte">Tutte Barycenter</option>
-                <option value="SpringEmbedders">Spring Embedders</option>
-                <option value="SpringEmbeddersGPU">Spring Embedders GPU</option>
-            </select>
-            <p>-Rendering speed:</p>
-            <input type="range" min="1" max="1000" value="10" oninput="ctrl.showRenderSpeed(this.value)"
-                   onchange="ctrl.showRenderSpeed(this.value)">
-            <span id="renderSpeed">0.01</span>
+                    <option value="./defaultGraphs/rect.json">rect</option>
+                </select>
+        
+                <h4>From Server</h4>
+                <span>Server location:</span>
+                <input type="text" value="localhost:1234/graph" placeholder="name:port" id="serverLocation"><br />
+                <span>Nodes: </span><input class="controllerInput" type="number" placeholder="#nodes" value="10" id="numOfNodes">
+                <span>Edges: </span><input class="controllerInput" type="number" placeholder="#edges" value="20" id="numOfEdges">
+                <br><br>
+                <input type="button" value="get from server" onclick="ctrl.onGetFromServer()">
+            </section>
 
-            <p>-Labels</p>
-            <label><input type="checkbox" onchange="ctrl.onShowNodeLabelsChange(this)">Show node labels</label><br />
-            <label><input type="checkbox" onchange="ctrl.onShowEdgeLabelsChange(this)">Show edge labels</label>
+            <section>
+                <h3>Algorithm</h3>
+                <select onchange="ctrl.onAlgorithmChanged(this.value)">
+                    <option value="Tutte">Tutte Barycenter</option>
+                    <option value="SpringEmbedders">Spring Embedders</option>
+                    <option value="SpringEmbeddersGPU">Spring Embedders GPU</option>
+                </select>
 
+                <h4>Algorithm Settings</h4>
+
+                <span>Speed:</span><br/>
+                <input type="range" min="1" max="1000" value="10" oninput="ctrl.onAlgorithmSpeedChanged(this.value)"
+                    onchange="ctrl.onAlgorithmSpeedChanged(this.value)" id="algorithmSpeed">
+                <span id="renderSpeed">1%</span>
+
+                <div id="springEmbeddersSettings" style="margin-top: 15px;">
+                    <span>Spring Rest Length: </span><input class="controllerInput" type="number" value="10" id="springRestLength"><br />
+                    <span>Spring Dampening: </span><input class="controllerInput" type="number" value="0.2" step="0.1" id="springDampening"><br />
+                    <span>Charge: </span><input class="controllerInput" type="number" value="150" id="charge"><br />
+                    <input type="button" value="Apply" onclick="ctrl.onConfirmSpringEmbeddersSettings()">
+                </div>
+            </section>
+
+            <section>
+                <h3>Rendering</h3>
+                <h4>Labels</h4>
+                <label><input type="checkbox" onchange="ctrl.onShowNodeLabelsChange(this)">Show node labels</label><br />
+                <label><input type="checkbox" onchange="ctrl.onShowEdgeLabelsChange(this)">Show edge labels</label>
+            </section>
 
         </div>
     </div>

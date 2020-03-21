@@ -6,49 +6,45 @@ class SpringEmbeddersAlgorithm {
         this.width = width;
         this.height = height;
 
-        this.renderSpeed = 1.0;
+        this.speed = 0.01;
 
         // TODO other spring embedder params
         this.springRestLength = 10
         this.springDampening = 1 / 10;
-        this.repulsiveConstant = 15
+        this.charge = 150 * 150
 
         this.setGraph(graph);
     }
 
-    setGraph(graph) {
-        this.graph = graph;
-        this.graph.nodes.forEach(node => {node.x = this.width * Math.random(); node.y = this.height * Math.random()});
-        //this.positionExternalFace();
+    setProperties(properties) {
+        this.speed = properties.speed || this.speed;
+        this.springDampening = properties.springDampening || this.springDampening;
+        this.springRestLength = properties.springRestLength || this.springRestLength;
+        this.charge = properties.charge || this.charge;
     }
 
-    positionExternalFace() {
-        const externalFace = this.graph.computeExternalFace();
-
-        const numberOfNodes = externalFace.length;
-        const slice = (2 * Math.PI) / numberOfNodes;
-        const halfWidth = this.width / 2;
-        const halfHeight = this.height / 2;
-        const offset = 20;
-
-        const angleAdder = externalFace.length % 2 === 0 ? slice/2 : Math.PI/2;
-
-        externalFace.forEach((node, i) => {
-            node.x = halfWidth + Math.cos(slice * i + angleAdder) * (halfWidth - offset);
-            node.y = halfHeight - Math.sin(slice * i + angleAdder) * (halfHeight - offset);
+    setGraph(graph) {
+        this.graph = graph;
+        this.graph.nodes.forEach(node => {
+            node.x = this.width / 2 + (100 * Math.random()) - 50;
+            node.y = this.height / 2 + (100 * Math.random() - 50);
+            node.isFixed = false;
         });
     }
 
     onCanvasSizeChanged(width, height) {
         this.width = width;
         this.height = height;
-        //this.positionExternalFace();
     }
 
     _getDistance(node, node2) {
         const deltaX = node.x - node2.x;
         const deltaY = node.y - node2.y;
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+
+    _clamp(val, min, max) {
+        return val < min ? min : (val > max ? max : val);
     }
 
     computeNextPositions() {
@@ -63,7 +59,7 @@ class SpringEmbeddersAlgorithm {
             node.neighbours.forEach((neighbour) => {
                 const distance = this._getDistance(node, neighbour);
 
-                if (Math.abs(distance) < 0.01) return;
+                if (Math.abs(distance) < 0.1) return;
 
                 const lengthDifference = distance - this.springRestLength;
 
@@ -78,17 +74,20 @@ class SpringEmbeddersAlgorithm {
                 }
                 const distance = this._getDistance(node, other);
 
-                if (Math.abs(distance) < 0.01) return;
+                if (Math.abs(distance) < 0.1) return;
 
-                const repulsion = this.repulsiveConstant / (distance);
+                const repulsion = (this.charge * this.charge) / (distance * distance);
 
                 forceX -= repulsion * ((other.x - node.x) / distance);
                 forceY -= repulsion * ((other.y - node.y) / distance);
             });
 
+            forceX = this._clamp(forceX, -200, 200);
+            forceY = this._clamp(forceY, -200, 200);
+
             // finally update the position
-            node.x += forceX;
-            node.y += forceY;
+            node.x += forceX * this.speed;
+            node.y += forceY * this.speed;
         });
     }
 }
