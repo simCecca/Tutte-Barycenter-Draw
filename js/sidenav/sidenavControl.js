@@ -116,16 +116,18 @@ class Controller {
         this.graph = graph;
 
         this.closeNav();
+
         this.renderer.setGraph(graph);
         this.algorithm.setGraph(graph);
 
         const renderFunction = () => {
             this.algorithm.computeNextPositions();
+
             this.renderer.render();
             requestAnimationFrame(renderFunction);
         };
 
-        requestAnimationFrame(renderFunction)
+        requestAnimationFrame(renderFunction);
     }
 }
 

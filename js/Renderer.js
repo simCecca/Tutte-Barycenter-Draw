@@ -12,6 +12,9 @@ class Renderer {
 
         this.renderNodeLabels = false;
         this.renderEdgeLabels = false;
+
+        this.svgNodes = null;
+        this.svgEdges = null;
     }
 
     setRenderNodeLabels(value) {
@@ -44,6 +47,33 @@ class Renderer {
         this.emptyCanvas();
         this.createArrowDef();
         this.graph = graph;
+
+        this.svgNodes = this.svgElement.selectAll("circle")
+            .data(this.graph.nodes)
+            .enter()
+            .append("circle")
+            .attr("r", 3)
+            .on("mouseover", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 5)})
+            .on("mouseout", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 3);})
+            .call(d3.drag()
+                .on("start", node => {node.wasFixed = node.isFixed; node.isFixed = true;})
+                .on("end", node => {node.isFixed = node.wasFixed;})
+                .on("drag", node => {node.x = d3.event.x; node.y = d3.event.y;}))
+            .attr("cx", node => node.x)
+            .attr("cy", node => node.y);
+
+        this.svgEdges = this.svgElement.selectAll("line")
+            .data(this.graph.edges)
+            .enter()
+            .append("line")
+            .attr("x1", edge => edge.source.x)
+            .attr("y1", edge => edge.source.y)
+            .attr("x2", edge => edge.target.x)
+            .attr("y2", edge => edge.target.y);
+            /*.each((edge, i, node) => {
+                if (edge.directed === true)
+                    d3.select(node[i]).attr("marker-end", "url(#triangle)");
+            });*/
     }
 
     setSize(width, height) {
@@ -54,39 +84,18 @@ class Renderer {
         this.svgElement.html("");
     }
 
-    renderNodes(nodes) {
-        const svgNodes = this.svgElement.selectAll("circle")
-            .data(nodes);
-
-        svgNodes.enter()
-            .append("circle")
-            .attr("r", 3)
-            .on("mouseover", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 5)})
-            .on("mouseout", (_, i, nodes) => {d3.select(nodes[i]).transition().duration(100).attr("r", 3);})
-            .call(d3.drag()
-                .on("start", node => {node.wasFixed = node.isFixed; node.isFixed = true;})
-                .on("end", node => {node.isFixed = node.wasFixed;})
-                .on("drag", node => {node.x = d3.event.x; node.y = d3.event.y;}))
-            .merge(svgNodes)
-            .attr("cx", node => node.x)
-            .attr("cy", node => node.y);
+    renderNodes() {
+        this.svgNodes
+            .attr("cx", node => { return node.x })
+            .attr("cy", node => { return node.y });
     }
 
-    renderEdges(edges) {
-        const svgEdges = this.svgElement.selectAll("line")
-            .data(edges); // edges aren't going to change...
-
-        svgEdges.enter()
-            .append("line")
-            .merge(svgEdges)
+    renderEdges() {
+        this.svgEdges
             .attr("x1", edge => edge.source.x)
             .attr("y1", edge => edge.source.y)
             .attr("x2", edge => edge.target.x)
-            .attr("y2", edge => edge.target.y)
-            .each((edge, i, node) => {
-                if (edge.directed === true)
-                    d3.select(node[i]).attr("marker-end", "url(#triangle)");
-            });
+            .attr("y2", edge => edge.target.y);
     }
 
     renderLabels(elements, kind, position = d => [d.x, d.y]) {
@@ -105,8 +114,8 @@ class Renderer {
     }
 
     render() {
-        this.renderEdges(this.graph.edges);
-        this.renderNodes(this.graph.nodes);
+        this.renderEdges();
+        this.renderNodes();
 
         if (this.renderNodeLabels === true)
             this.renderLabels(this.graph.nodes, "nodes", n => [n.x + 10, n.y]);
