@@ -9,7 +9,7 @@ class Controller {
 
         this.loader = new GraphLoader();
 
-        this.setSpringEmbeddersVisibility(false);
+        this.setSpringEmbeddersSettingsVisibility(false);
     }
 
     openNav() {
@@ -35,7 +35,7 @@ class Controller {
         this.algorithm.onCanvasSizeChanged(window.innerWidth, window.innerHeight);
     }
 
-    setSpringEmbeddersVisibility(visibility) {
+    setSpringEmbeddersSettingsVisibility(visibility) {
         document.getElementById("springEmbeddersSettings").style.display = visibility ? "block" : "none";
     }
 
@@ -73,11 +73,15 @@ class Controller {
     onAlgorithmChanged(value) {
         if (value === "Tutte") {
             this.algorithm = new RaphsonNewtonAlgorithm(this.graph, window.innerWidth, window.innerHeight);
-            this.setSpringEmbeddersVisibility(false);
+            this.setSpringEmbeddersSettingsVisibility(false);
         }
-        else if (value == "SpringEmbedders") {
+        else if (value === "SpringEmbedders") {
             this.algorithm = new SpringEmbeddersAlgorithm(this.graph, window.innerWidth, window.innerHeight);
-            this.setSpringEmbeddersVisibility(true);
+            this.setSpringEmbeddersSettingsVisibility(true);
+        }
+        else if (value === "SpringEmbeddersGPU") {
+            this.algorithm = new SpringEmbeddersGPUAlgorithm(this.graph, window.innerWidth, window.innerHeight);
+            this.setSpringEmbeddersSettingsVisibility(true);
         }
 
         this.algorithm.setProperties(this._readAlgorithmProperties());
