@@ -48,6 +48,19 @@ class Renderer {
         this.createArrowDef();
         this.graph = graph;
 
+        this.svgEdges = this.svgElement.selectAll("line")
+        .data(this.graph.edges)
+        .enter()
+        .append("line")
+        .attr("x1", edge => edge.source.x)
+        .attr("y1", edge => edge.source.y)
+        .attr("x2", edge => edge.target.x)
+        .attr("y2", edge => edge.target.y);
+        /*.each((edge, i, node) => {
+            if (edge.directed === true)
+                d3.select(node[i]).attr("marker-end", "url(#triangle)");
+        });*/
+
         this.svgNodes = this.svgElement.selectAll("circle")
             .data(this.graph.nodes)
             .enter()
@@ -61,19 +74,6 @@ class Renderer {
                 .on("drag", node => {node.x = d3.event.x; node.y = d3.event.y;}))
             .attr("cx", node => node.x)
             .attr("cy", node => node.y);
-
-        this.svgEdges = this.svgElement.selectAll("line")
-            .data(this.graph.edges)
-            .enter()
-            .append("line")
-            .attr("x1", edge => edge.source.x)
-            .attr("y1", edge => edge.source.y)
-            .attr("x2", edge => edge.target.x)
-            .attr("y2", edge => edge.target.y);
-            /*.each((edge, i, node) => {
-                if (edge.directed === true)
-                    d3.select(node[i]).attr("marker-end", "url(#triangle)");
-            });*/
     }
 
     setSize(width, height) {

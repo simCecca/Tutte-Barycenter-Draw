@@ -32,20 +32,22 @@ class SpringEmbeddersGPUAlgorithm {
         this._charge = properties.charge || this._charge;
     }
 
-    _createKernel(numberOfNodes) {
-        const outputSize = Math.ceil(Math.sqrt(numberOfNodes));
+    _createKernel() {
+        const outputSize = this._nodesMatrix.length;
 
         const gpu = SpringEmbeddersGPUAlgorithm._getGpuInstance();
-        const kernel = gpu.createKernel(function(positions) {
+        this._kernel = gpu.createKernel(function(positions) {
             const row = this.thread.y;
             const col = this.thread.x;
 
             const [x, y] = positions[row][col];
 
-            return [x + 0.1, y + 0.1];
-        }).setOutput([outputSize, outputSize]);
+            return [x + this.constants.speed, y + 0.1];
+        }).setOutput([outputSize, outputSize])
+        .setConstants({});
 
-        return kernel;
+        this._kernel.constants.speed = 3;
+
     }
 
     _create3dMatrix(rows, columns, depth, defaultValue) {
@@ -72,7 +74,22 @@ class SpringEmbeddersGPUAlgorithm {
         return [row, col];
     }
 
-    _createGraphMatrices(graph) {
+    /**
+     * Creates the position, node and adjacency matrices.
+     * The position matrix contains the position of the nodes.
+     * The node matrix contains, for each node, the coordinates of the adjacency matrix in which
+     * the list of its neighbours are stored. Each element of the node matrix also contains the number
+     * of neighbours for that node.
+     * The adjacency matrix contains, for each node, the list of its neigbours.
+     * Given the node with index i, we can access its position using the respective matrix
+     * coordinates: [i / rows, i % columns]. The same coordinates can be used to access the node matrix.
+     * To access the adjacency matrix for a node you need adjacencyMatrix[nodesMatrix[i / rows, i % columns]].
+     * nodes and positions matrices have size sqrt(n) x sqrt(n) where n is the number of nodes.
+     * The adjacency matrix has size sqrt(m) x sqrt(m) where m is the number of edges.
+     */
+    _createGraphMatrices() {
+        const graph = this._graph;
+
         // We encode N nodes in a matrix whose size is sqrt(n) x sqrt(n)
         const nodesMatrixSize = Math.ceil(Math.sqrt(graph.nodes.length));
 
@@ -122,11 +139,19 @@ class SpringEmbeddersGPUAlgorithm {
             });
         }
 
-        return {
-            positionsMatrix,
-            nodesMatrix,
-            adjacencyMatrix
-        };
+        this._positionsMatrix = positionsMatrix;
+        this._adjacencyMatrix = adjacencyMatrix;
+        this._nodesMatrix = nodesMatrix;
+    }
+
+    /**
+     * Sets up GPU data.
+     * This method uses the current graph to create the textures
+     * and the kernel used to carry out computation on the GPU.
+     */
+    _setUpGPU() {
+        this._createGraphMatrices();
+        this._createKernel();
     }
 
     setGraph(graph) {
@@ -137,13 +162,7 @@ class SpringEmbeddersGPUAlgorithm {
             node.isFixed = false;
         });
 
-        // Creates and saves the matrices
-        const matrices = this._createGraphMatrices(graph);
-        this._positionsMatrix = matrices.positionsMatrix;
-        this._nodesMatrix = matrices.nodesMatrix;
-        this._adjacencyMatrix = matrices.adjacencyMatrix;
-
-        this._kernel = this._createKernel(graph.nodes.length);
+        this._setUpGPU();
     }
 
     onCanvasSizeChanged(width, height) {
@@ -162,6 +181,9 @@ class SpringEmbeddersGPUAlgorithm {
     }
 
     computeNextPositions() {
+        this._kernel.constants.speed += 3;
+        this._kernel.setConstants(this._kernel.constants);
+        
         this._positionsMatrix = this._kernel(this._positionsMatrix);
 
         const rows = this._positionsMatrix.length;
