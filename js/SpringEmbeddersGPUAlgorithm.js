@@ -16,9 +16,12 @@ class SpringEmbeddersGPUAlgorithm {
         this._charge = 150 * 150
 
         // GPU Data
-        this._positionsMatrix = []
-        this._adjacencyMatrix = []
-        this._nodesMatrix = []
+        this._positionsTexture = null
+        this._adjacencyTexture = null
+        this._adjacencySize = 0;
+
+        this._nodesTexture = null
+        this._nodesSize = 0
 
         this._kernel = null;
 
@@ -32,22 +35,47 @@ class SpringEmbeddersGPUAlgorithm {
         this._charge = properties.charge || this._charge;
     }
 
-    _createKernel() {
-        const outputSize = this._nodesMatrix.length;
-
+    _createTexture(matrix) {
         const gpu = SpringEmbeddersGPUAlgorithm._getGpuInstance();
-        this._kernel = gpu.createKernel(function(positions) {
+
+        let numberOfContainedElements = 1;
+        
+        // TODO check whether is actually an array
+        numberOfContainedElements = matrix[0][0].length;
+        
+
+        const kernel = gpu.createKernel(function(matrix) {
             const row = this.thread.y;
             const col = this.thread.x;
 
-            const [x, y] = positions[row][col];
+            return matrix[row][col];
+        });
+        kernel.setOutput([matrix.length, matrix.length])
+        kernel.setArgumentTypes({ matrix: `Array2D(${numberOfContainedElements})` })
+        kernel.setPipeline(true);
 
-            return [x + this.constants.speed, y + 0.1];
-        }).setOutput([outputSize, outputSize])
-        .setConstants({});
+        return kernel(matrix);
+    }
 
-        this._kernel.constants.speed = 3;
+    _createKernel() {
+        const gpu = SpringEmbeddersGPUAlgorithm._getGpuInstance();
+        this._kernel = gpu.createKernel(function(positionsMatrix, nodesMatrix, adjacencyMatrix, speed, restLength, dampening, charge2) {
+            const row = this.thread.y;
+            const col = this.thread.x;
 
+            // position of the current node
+            const pos = positionsMatrix[row][col];
+
+           return pos;
+        });
+        
+        this._kernel.setOutput([this._nodesSize, this._nodesSize])
+        this._kernel.setConstants({
+            nodesSize: this._nodesSize,
+            adjacencySize: this._adjacencySize
+        });
+        this._kernel.setPipeline(true);
+        this._kernel.setImmutable(true);
     }
 
     _create3dMatrix(rows, columns, depth, defaultValue) {
@@ -139,9 +167,14 @@ class SpringEmbeddersGPUAlgorithm {
             });
         }
 
-        this._positionsMatrix = positionsMatrix;
-        this._adjacencyMatrix = adjacencyMatrix;
-        this._nodesMatrix = nodesMatrix;
+        this._positionsTexture = this._createTexture(positionsMatrix, "Array2D");
+
+        console.log(this._positionsTexture);
+        this._adjacencyTexture = this._createTexture(adjacencyMatrix, "Array2D");
+        
+        this._adjacencySize = adjacencyMatrix.length;
+        this._nodesTexture = this._createTexture(nodesMatrix, "Array2D");
+        this._nodesSize = nodesMatrix.length;
     }
 
     /**
@@ -170,24 +203,14 @@ class SpringEmbeddersGPUAlgorithm {
         this._height = height;
     }
 
-    _getDistance(node, node2) {
-        const deltaX = node.x - node2.x;
-        const deltaY = node.y - node2.y;
-        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    }
+    computeNextPositions() {        
+        this._positionsTexture = this._kernel(this._positionsTexture, this._nodesTexture, this._adjacencyTexture,
+            this._speed, this._springRestLength, this._springDampening, this._charge * this._charge);
 
-    _clamp(val, min, max) {
-        return val < min ? min : (val > max ? max : val);
-    }
+        const positionsMatrix = this._positionsTexture.toArray();
 
-    computeNextPositions() {
-        this._kernel.constants.speed += 3;
-        this._kernel.setConstants(this._kernel.constants);
-        
-        this._positionsMatrix = this._kernel(this._positionsMatrix);
-
-        const rows = this._positionsMatrix.length;
-        const columns = this._positionsMatrix[0].length;
+        const rows = this._nodesSize;
+        const columns = this._nodesSize;
 
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < columns; col++) {
@@ -195,7 +218,7 @@ class SpringEmbeddersGPUAlgorithm {
 
                 if (nodeIndex < this._graph.nodes.length) {
                     const node = this._graph.nodes[nodeIndex];
-                    [node.x, node.y] = this._positionsMatrix[row][col];
+                    [node.x, node.y] = positionsMatrix[row][col];
                 }
             }
         }

@@ -59,8 +59,6 @@ class SpringEmbeddersAlgorithm {
             node.neighbours.forEach((neighbour) => {
                 const distance = this._getDistance(node, neighbour);
 
-                if (Math.abs(distance) < 0.1) return;
-
                 const lengthDifference = distance - this.springRestLength;
 
                 forceX += this.springDampening * lengthDifference * ((neighbour.x - node.x) / distance);
@@ -73,8 +71,6 @@ class SpringEmbeddersAlgorithm {
                     return;
                 }
                 const distance = this._getDistance(node, other);
-
-                if (Math.abs(distance) < 0.1) return;
 
                 const repulsion = (this.charge * this.charge) / (distance * distance);
 
