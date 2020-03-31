@@ -1,7 +1,7 @@
 
 class SpringEmbeddersGPUAlgorithm {
 
-    constructor(graph, width, height){
+    constructor(graph, width, height) {
         this._graph = null;
         this._width = width;
         this._height = height;
@@ -39,42 +39,90 @@ class SpringEmbeddersGPUAlgorithm {
         const gpu = SpringEmbeddersGPUAlgorithm._getGpuInstance();
 
         let numberOfContainedElements = 1;
-        
-        // TODO check whether is actually an array
-        numberOfContainedElements = matrix[0][0].length;
-        
 
-        const kernel = gpu.createKernel(function(matrix) {
+        // check whether is actually an array
+        if (Array.isArray(matrix[0][0])) {
+            numberOfContainedElements = matrix[0][0].length;
+        }
+        console.log(numberOfContainedElements);
+
+        const kernel = gpu.createKernel(function (matrix) {
             const row = this.thread.y;
             const col = this.thread.x;
 
             return matrix[row][col];
         });
-        kernel.setOutput([matrix.length, matrix.length])
-        kernel.setArgumentTypes({ matrix: `Array2D(${numberOfContainedElements})` })
+        kernel.setOutput([matrix.length, matrix.length]);
+        kernel.setArgumentTypes({ matrix: `Array2D(${numberOfContainedElements})` });
         kernel.setPipeline(true);
 
-        return kernel(matrix);
+        const result = kernel(matrix);
+        console.log(kernel.getKernelString());
+        return result;
     }
 
     _createKernel() {
         const gpu = SpringEmbeddersGPUAlgorithm._getGpuInstance();
-        this._kernel = gpu.createKernel(function(positionsMatrix, nodesMatrix, adjacencyMatrix, speed, restLength, dampening, charge2) {
+        this._kernel = gpu.createKernel(function (positionsTexture, nodesTexture, adjacencyTexture, speed, restLength, dampening, charge2) {
             const row = this.thread.y;
             const col = this.thread.x;
 
-            // position of the current node
-            const pos = positionsMatrix[row][col];
+            // position of current node
+            const position = positionsTexture[row][col];
+            const positionX = position[0];
+            const positionY = position[1];
 
-           return pos;
+            let forceX = 0.0;
+            let forceY = 0.0;
+
+            const nodeInfo = nodesTexture[row][col];
+            let adjRow = nodeInfo[0];
+            let adjCol = nodeInfo[1];
+            let numNeighbours = nodeInfo[2];
+            for (let i = 0; i < numNeighbours; i++) {
+                if (adjCol >= this.constants.adjacencySize) { // we got to the last element of the row: next row, reset col
+                    adjCol = 0;
+                    adjRow++;
+                }
+
+                const neighbourCoords = adjacencyTexture[adjRow][adjCol];
+                const neighbourPosition = positionsTexture[neighbourCoords[0]][neighbourCoords[1]];
+                const neighbourX = neighbourPosition[0];
+                const neighbourY = neighbourPosition[1];
+
+                const deltaX = neighbourX - positionX;
+                const deltaY = neighbourY - positionY;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                const lengthDifference = distance - restLength;
+
+                forceX += dampening * lengthDifference * deltaX / distance;
+                forceY += dampening * lengthDifference * deltaY / distance;
+
+                adjCol += 1;
+            }
+
+            //forceX = Math.min(Math.max(forceX, -200), 200); // clamp(forceX, -200, 200), clamp is only available in glsl
+            //forceY = Math.min(Math.max(forceY, -200), 200); // clamp(forceY, -200, 200)
+
+            return nodeInfo;
         });
-        
+
         this._kernel.setOutput([this._nodesSize, this._nodesSize])
         this._kernel.setConstants({
             nodesSize: this._nodesSize,
             adjacencySize: this._adjacencySize
         });
         this._kernel.setPipeline(true);
+        /*this._kernel.setArgumentTypes({
+            positionsTexture: `Array2D(2)`,
+            nodesTexture: `Array2D(3)`,
+            adjacencyTexture: `Array2D(2)`,
+            speed: `Float`,
+            restLength: `Float`,
+            dampening: `Float`,
+            charge2: `Float`
+        });*/
         this._kernel.setImmutable(true);
     }
 
@@ -167,13 +215,12 @@ class SpringEmbeddersGPUAlgorithm {
             });
         }
 
-        this._positionsTexture = this._createTexture(positionsMatrix, "Array2D");
-
-        console.log(this._positionsTexture);
-        this._adjacencyTexture = this._createTexture(adjacencyMatrix, "Array2D");
-        
+        console.log(nodesMatrix);
+        this._positionsTexture = this._createTexture(positionsMatrix);
+        this._adjacencyTexture = this._createTexture(adjacencyMatrix);
         this._adjacencySize = adjacencyMatrix.length;
-        this._nodesTexture = this._createTexture(nodesMatrix, "Array2D");
+        this._nodesTexture = this._createTexture(nodesMatrix);
+        console.log(this._nodesTexture.toArray());
         this._nodesSize = nodesMatrix.length;
     }
 
@@ -203,11 +250,13 @@ class SpringEmbeddersGPUAlgorithm {
         this._height = height;
     }
 
-    computeNextPositions() {        
+    computeNextPositions() {
         this._positionsTexture = this._kernel(this._positionsTexture, this._nodesTexture, this._adjacencyTexture,
             this._speed, this._springRestLength, this._springDampening, this._charge * this._charge);
 
         const positionsMatrix = this._positionsTexture.toArray();
+
+        console.log(this._kernel.getKernelString());
 
         const rows = this._nodesSize;
         const columns = this._nodesSize;
@@ -227,7 +276,7 @@ class SpringEmbeddersGPUAlgorithm {
 
 SpringEmbeddersGPUAlgorithm._gpu = null;
 
-SpringEmbeddersGPUAlgorithm._getGpuInstance = function() {
+SpringEmbeddersGPUAlgorithm._getGpuInstance = function () {
     if (SpringEmbeddersGPUAlgorithm._gpu === null) {
         SpringEmbeddersGPUAlgorithm._gpu = new GPU();
     }

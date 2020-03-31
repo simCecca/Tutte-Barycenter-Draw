@@ -124,10 +124,19 @@ class Controller {
         this.renderer.setGraph(graph);
         this.algorithm.setGraph(graph);
 
+        let i = 0;
+        let tot = 0;
         const renderFunction = () => {
             const a = performance.now()
             this.algorithm.computeNextPositions();
-            console.log(performance.now() - a);
+            tot += performance.now() - a;
+            i++;
+
+            if (i % 100 === 0) {
+                console.log(tot / i);
+                i = 0;
+                tot = 0;
+            }
 
             this.renderer.render();
             requestAnimationFrame(renderFunction);
