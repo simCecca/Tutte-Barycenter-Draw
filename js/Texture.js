@@ -17,11 +17,41 @@ class Texture {
             throw new Error("Wrong width and height for the supplied data");
         }
 
-        return new Texture(width, height, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data, useForIO);
+        return new Texture(width, height, gl.RGBA8UI, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, data, useForIO);
     }
 
     /**
-     * 
+     * Creates a Texture that, for each pixel, contains 2 Uint8.
+     * @param {number} width the width of the texture 
+     * @param {number} height the height of the texture
+     * @param {Uint8Array} data the data to store in the texture
+     * @param {boolean} useForIO whether this texture will be used as an output
+     */
+    static createTextureUint8_2(width, height, data, useForIO) {
+        if (width * height * 2 != data.length) {
+            throw new Error("Wrong width and height for the supplied data");
+        }
+
+        return new Texture(width, height, gl.RG8UI, gl.RG_INTEGER, gl.UNSIGNED_BYTE, data, useForIO);
+    }
+
+    /**
+     * Creates a Texture that, for each pixel, contains 4 Uint16.
+     * @param {number} width the width of the texture
+     * @param {number} height the height of the texture
+     * @param {Uint16Array} data the data to store in the texture
+     * @param {boolean} useForIO whether this texture will be used as an output
+     */
+    static createTextureUint16_4(width, height, data, useForIO) {
+        if (width * height * 4 != data.length) {
+            throw new Error("Wrong width and height for the supplied data");
+        }
+
+        return new Texture(width, height, gl.RGBA16UI, gl.RGBA_INTEGER, gl.UNSIGNED_SHORT, data, useForIO);
+    }
+
+    /**
+     * Creates a texture that, for each pixel, contains 4 16bit floats.
      * @param {number} width the width of the texture 
      * @param {number} height the height of the texture
      * @param {Float32Array} data the data to store in the texture
@@ -36,7 +66,7 @@ class Texture {
     }
 
     /**
-     * 
+     * Creates a texture that, for each pixel, contains 4 32bit floats.
      * @param {number} width the width of the texture 
      * @param {number} height the height of the texture
      * @param {Float32Array} data the data to store in the texture
@@ -48,6 +78,21 @@ class Texture {
         }
 
         return new Texture(width, height, gl.RGBA32F, gl.RGBA, gl.FLOAT, data, useForIO);
+    }
+
+    /**
+     * Creates a texture that, for each pixel, contains 2 32bit floats.
+     * @param {number} width the width of the texture 
+     * @param {number} height the height of the texture
+     * @param {Float32Array} data the data to store in the texture
+     * @param {boolean} useForIO whether this texture will be used as an output
+     */
+    static createTextureFloat32_2(width, height, data, useForIO) {
+        if (width * height * 2 != data.length) {
+            throw new Error("Wrong width and height for the supplied data");
+        }
+
+        return new Texture(width, height, gl.RG32F, gl.RG, gl.FLOAT, data, useForIO);
     }
 
     /**
@@ -131,6 +176,34 @@ class Texture {
         gl.bindTexture(gl.TEXTURE_2D, this._texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, this._internalFormat, width, height, 0, this._dataFormat, this._dataType, data);
         gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    /**
+     * @returns {number} the width of this texture
+     */
+    getWidth() {
+        return this._width;
+    }
+
+    /**
+     * @returns {number} the height of this texture
+     */
+    getHeight() {
+        return this._height;
+    }
+
+    /**
+     * @returns {number} the OpenGL id of this texture.
+     */
+    getTextureId() {
+        return this._texture;
+    }
+
+    /**
+     * @return {number} the OpenGL id of the fbo for this texture.
+     */
+    getFboId() {
+        return this._fbo;
     }
 
     /**
