@@ -9,7 +9,10 @@
 
     <title>Graph toolkit</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/gpu.js@latest/dist/gpu-browser.min.js"></script>
+    <script src="js/Shader.js"></script>
+    <script src="js/Texture.js"></script>
+    <script src="js/Kernel.js"></script>
+    <script src="js/SpringEmbeddersKernel.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="js/GraphFileLoader.js"></script>
     <script src="js/RaphsonNewtonAlgorithm.js"></script>
@@ -26,6 +29,7 @@
 </head>
 <body>
     <svg id="svgCanvas" onclick="ctrl.closeNav()"></svg>
+    <canvas id="canvas"></canvas>
 
     <span class="optionsbtn" onclick="ctrl.openNav()">&#9776; options</span>
 
@@ -73,7 +77,7 @@
 
                 <div id="springEmbeddersSettings" style="margin-top: 15px;">
                     <span>Spring Rest Length: </span><input class="controllerInput" type="number" value="10" id="springRestLength"><br />
-                    <span>Spring Dampening: </span><input class="controllerInput" type="number" value="0.2" step="0.1" id="springDampening"><br />
+                    <span>Spring Dampening: </span><input class="controllerInput" type="number" value="0.15" step="0.01" id="springDampening"><br />
                     <span>Charge: </span><input class="controllerInput" type="number" value="150" id="charge"><br />
                     <input type="button" value="Apply" onclick="ctrl.onConfirmSpringEmbeddersSettings()">
                 </div>
@@ -99,6 +103,22 @@
     <script src="js/sidenav/sidenavControl.js"></script>
     <script>
         ctrl.openNav();
+
+        // todo plz move me into a function
+        gl = document.getElementById("canvas").getContext("webgl2");
+        if (!gl) {
+            ctrl.showError("Your browser does not support WebGL2. GPU based algorithms and rendering will not be available");
+        }
+        else {
+            gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+            const colorBufferFloatExtension = gl.getExtension("EXT_color_buffer_float");
+            if (!colorBufferFloatExtension) {
+                ctrl.showError(`Your browser does not support floating point buffers.
+                GPU based algorithm will not be available`);
+            }
+        }
     </script>
 
 </body>

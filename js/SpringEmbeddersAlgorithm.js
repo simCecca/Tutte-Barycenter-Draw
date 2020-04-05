@@ -10,7 +10,7 @@ class SpringEmbeddersAlgorithm {
 
         // TODO other spring embedder params
         this.springRestLength = 10
-        this.springDampening = 1 / 10;
+        this.springDampening = 0.15;
         this.charge = 150 * 150
 
         this.setGraph(graph);
@@ -25,11 +25,11 @@ class SpringEmbeddersAlgorithm {
 
     setGraph(graph) {
         this.graph = graph;
-        /*this.graph.nodes.forEach(node => {
+        this.graph.nodes.forEach(node => {
             node.x = this.width / 2 + (100 * Math.random()) - 50;
             node.y = this.height / 2 + (100 * Math.random() - 50);
             node.isFixed = false;
-        });*/
+        });
     }
 
     onCanvasSizeChanged(width, height) {

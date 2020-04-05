@@ -71,6 +71,63 @@ class Shader {
     }
 
     /**
+     * Sets the value of a vec2 uniform
+     * @param {string} name the name of the uniform
+     * @param {Float32Array} value the value used to set the uniform
+     */
+    setVec2(name, value) {
+        const location = this.getUniformLocationFor(name)
+        gl.uniform2fv(location, value);
+    }
+
+    /**
+     * Sets the value of a vec2 uniform given its index
+     * @param {WebGLUniformLocation} index index of the uniform 
+     * @param {Float32Array} value the value used to set the uniform
+     */
+    setVec2Index(index, value) {
+        gl.uniform2fv(index, value);
+    }
+
+    setIntVec2(name, value) {
+        const location = this.getUniformLocationFor(name);
+        gl.uniform2iv(location, value);
+    }
+
+    setFloat(name, value) {
+        const location = this.getUniformLocationFor(name);
+        gl.uniform1f(location, value);
+    }
+
+    setFloatIndex(index, value) {
+        gl.uniform1f(index, value);
+    }
+
+    setInt(name, value) {
+        const location = this.getUniformLocationFor(name);
+        gl.uniform1i(location, value);
+    }
+
+    setIntIndex(index, value) {
+        gl.uniform1i(index, value);
+    }
+
+    /**
+     * Returns the location of a uniform variable.
+     * @param {string} name the name of the uniform variable
+     * @returns {WebGLUniformLocation} the location of the variable
+     * @throws {Error} if there is no variable with the given name
+     */
+    getUniformLocationFor(name) {
+        const location = gl.getUniformLocation(this._program, name);
+        if (location === null) {
+            throw new Error(`No such uniform with name ${name}`);
+        }
+
+        return location;
+    }
+
+    /**
      * Sets this shader as the current one.
      */
     use() {

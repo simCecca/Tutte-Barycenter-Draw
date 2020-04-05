@@ -3,6 +3,9 @@
  */
 class Kernel {
 
+    /**
+     * Simple vertex shader used by all kernels.
+     */
     static _VERTEX_SHADER = `#version 300 es
 
     layout (location = 0) in vec2 vPosition;
@@ -59,16 +62,51 @@ class Kernel {
         this._outputTexture = null;
         this._shader = new Shader(Kernel._VERTEX_SHADER, source);
 
-        // TEMP
-        this._inputTexture = null;
+        this._usedTextures = new Set();
+        this._uniformNameToLocation = new Map();
+        this._textureNameToTextureInfo = new Map();
+
+        this._nextFreeInputTextureSlot = 0;
     }
 
-    setInputNumber(name, value) {
+    _getUniformLocation(name) {
+        let location = this._uniformNameToLocation.get(name);
+        if (location === undefined) {
+            location = this._shader.getUniformLocationFor(name);
+            this._uniformNameToLocation.set(name, location);
+        }
 
+        return location;
+    }
+
+    setInputNumber(name, value, isInteger) {
+        isInteger = isInteger || false;
+        this._shader.use();
+        if (isInteger) {
+            this._shader.setIntIndex(this._getUniformLocation(name), value);
+        }
+        else {
+            this._shader.setFloatIndex(this._getUniformLocation(name), value);
+        }
+        this._shader.stop();
     }
 
     setInputTexture(name, texture) {
-        this._inputTexture = texture;
+        const textureInfo = this._textureNameToTextureInfo.get(name);
+        if (textureInfo) {
+            textureInfo.texture = texture;
+            return;
+        }
+
+        const textureIndex = this._nextFreeInputTextureSlot;
+        this._nextFreeInputTextureSlot++;
+
+        this.setInputNumber(name, textureIndex, true);
+
+        this._textureNameToTextureInfo.set(name, {
+            index: textureIndex,
+            texture: texture
+        });
     }
 
     setOutputTexture(texture) {
@@ -86,7 +124,11 @@ class Kernel {
         gl.viewport(0, 0, this._outputTexture.getWidth(), this._outputTexture.getHeight());
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._outputTexture.getFboId());
         
-        gl.bindTexture(gl.TEXTURE_2D, this._inputTexture.getTextureId());
+        // binds texture to their relative index
+        for (let [_, {index, texture}] of this._textureNameToTextureInfo) {
+            gl.activeTexture(gl.TEXTURE0 + index);
+            gl.bindTexture(gl.TEXTURE_2D, texture.getTextureId());
+        }
 
         this._shader.use();
 
@@ -94,7 +136,12 @@ class Kernel {
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         gl.bindVertexArray(null);
 
+        // unbind
         this._shader.stop();
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        for (let [_, {index, texture}] of this._textureNameToTextureInfo) {
+            gl.activeTexture(gl.TEXTURE0 + index);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+        }
     }
 }

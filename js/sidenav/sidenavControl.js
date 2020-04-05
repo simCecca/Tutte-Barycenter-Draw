@@ -118,7 +118,7 @@ class Controller {
 
     drawGraph(graph) {
         this.graph = graph;
-
+        console.log(this.graph.nodes.length);
         this.closeNav();
 
         this.renderer.setGraph(graph);
