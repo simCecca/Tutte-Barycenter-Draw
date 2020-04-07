@@ -71,14 +71,14 @@
                 <h4>Algorithm Settings</h4>
 
                 <span>Speed:</span><br/>
-                <input type="range" min="1" max="1000" value="10" oninput="ctrl.onAlgorithmSpeedChanged(this.value)"
+                <input type="range" min="1" max="1000" value="1000" oninput="ctrl.onAlgorithmSpeedChanged(this.value)"
                     onchange="ctrl.onAlgorithmSpeedChanged(this.value)" id="algorithmSpeed">
-                <span id="renderSpeed">1%</span>
+                <span id="renderSpeed">100%</span>
 
                 <div id="springEmbeddersSettings" style="margin-top: 15px;">
-                    <span>Spring Rest Length: </span><input class="controllerInput" type="number" value="10" id="springRestLength"><br />
-                    <span>Spring Dampening: </span><input class="controllerInput" type="number" value="0.15" step="0.01" id="springDampening"><br />
-                    <span>Charge: </span><input class="controllerInput" type="number" value="150" id="charge"><br />
+                    <span>Spring Rest Length: </span><input class="controllerInput" type="number" value="15" id="springRestLength"><br />
+                    <span>Spring Dampening: </span><input class="controllerInput" type="number" value="0.125" step="0.01" id="springDampening"><br />
+                    <span>Charge: </span><input class="controllerInput" type="number" value="75" id="charge"><br />
                     <input type="button" value="Apply" onclick="ctrl.onConfirmSpringEmbeddersSettings()">
                 </div>
             </section>
@@ -88,6 +88,12 @@
                 <h4>Labels</h4>
                 <label><input type="checkbox" onchange="ctrl.onShowNodeLabelsChange(this)">Show node labels</label><br />
                 <label><input type="checkbox" onchange="ctrl.onShowEdgeLabelsChange(this)">Show edge labels</label>
+            </section>
+
+            <section>
+                <h3>Stats</h3>
+                <span>Algorithm time: </span><span id="algoTime"></span><span> ms</span><br />
+                <span>Render time:</span><span id="renderTime"></span><span> ms</span>
             </section>
 
         </div>

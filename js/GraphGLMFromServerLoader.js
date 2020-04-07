@@ -75,8 +75,8 @@ class GraphGLMFromServerLoader{
         const textGml = await this._fetchGML(path);
 
         //parse the gml to json
-        var a = this._parseGML(textGml);
-        return a;
+        var parsedGraph = this._parseGML(textGml);
+        return parsedGraph;
     }
 
 }

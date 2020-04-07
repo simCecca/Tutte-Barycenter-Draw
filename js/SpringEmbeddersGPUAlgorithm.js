@@ -130,8 +130,8 @@ class SpringEmbeddersGPUAlgorithm {
         }
 
         this._graph.nodes.forEach(node => {
-            node.x = this._width / 2 + (100 * Math.random()) - 50;
-            node.y = this._height / 2 + (100 * Math.random() - 50);
+            node.x = this._width / 2 + (300 * Math.random() - 150);
+            node.y = this._height / 2 + (300 * Math.random() - 150);
 
             node.isFixed = false;
         });
@@ -145,19 +145,29 @@ class SpringEmbeddersGPUAlgorithm {
     }
 
     computeNextPositions() {
-        this._kernel.setInputTexture("positions", this._positionsTexture);
-        this._kernel.setOutputTexture(this._outputTexture);
+        for (let i = 0; i < 1000; i++) { 
+            this._kernel.setInputTexture("positions", this._positionsTexture);
+            this._kernel.setOutputTexture(this._outputTexture);
 
-        this._kernel.execute();
-        
+            this._kernel.execute();
+            
+
+            // swap input and output
+            [this._positionsTexture, this._outputTexture] = [this._outputTexture, this._positionsTexture];
+        }
+
         const positions = this._outputTexture.getData();
+
 
         for (let i = 0; i < this._graph.nodes.length; i++) {
             const node = this._graph.nodes[i];
-            [node.x, node.y] = [positions[i * 2], positions[i * 2 + 1]];
+            if (!node.isFixed) {
+                [node.x, node.y] = [positions[i * 2], positions[i * 2 + 1]];
+            }
+            else { // fixed node, its position cannot change and the texture must be updated
+                [positions[i * 2], positions[i * 2 + 1]] = [node.x, node.y];
+                this._outputTexture.updateData(positions);
+            }
         }
-
-        // swap input and output
-        [this._positionsTexture, this._outputTexture] = [this._outputTexture, this._positionsTexture];
     }
 }

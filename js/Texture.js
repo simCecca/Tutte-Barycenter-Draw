@@ -174,7 +174,7 @@ class Texture {
      */
     updateData(data) {
         gl.bindTexture(gl.TEXTURE_2D, this._texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, this._internalFormat, width, height, 0, this._dataFormat, this._dataType, data);
+        gl.texImage2D(gl.TEXTURE_2D, 0, this._internalFormat, this._width, this._height, 0, this._dataFormat, this._dataType, data);
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
 

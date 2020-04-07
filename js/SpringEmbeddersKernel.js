@@ -1,12 +1,12 @@
-
-
-
+/**
+ * Kernel to compute graph layout based on the spring embedders algorithm.
+ * The GPU algorithm is based on the paper https://www.labri.fr/perso/melancon/Visual_Analytics_Course/lib/exe/fetch.php?media=bordeaux20132014:auber_chiricota_2007_gpu.pdf
+ */
 class SpringEmbeddersKernel extends Kernel {
 
     constructor() {
         super(SpringEmbeddersKernel.kernelCode);
     }
-
 
     setProperties(properties) {
         this._shader.use();
@@ -54,7 +54,7 @@ uniform float speed;
 uniform float springRestLength;
 uniform float springDampening;
 uniform float charge2;
-//uniform ivec2 lastNodeCoord;
+uniform ivec2 lastNodeCoord;
 
 void main() {
     // location of the node in the nodes texture
@@ -63,32 +63,37 @@ void main() {
     ivec2 adjacencySize = textureSize(adjacency, 0);
     ivec2 positionsSize = textureSize(positions, 0);
 
-    vec2 force = vec2(0.0);
-
     vec2 nodePosition = texelFetch(positions, nodeMatrixCoord, 0).xy;
 
     if (nodePosition == vec2(0.0)) {
         discard;
     }
 
+    // initial force
+    vec2 force = vec2(0.0);
+
+    // the adjacency are stored in the adjacency matrix, to access this matrix for the current node
+    // we have to take the indices from the nodes matrix.
     uvec3 nodeAdjacency = texelFetch(nodes, nodeMatrixCoord, 0).xyz;
     ivec2 nodeAdjacencyCoord = ivec2(nodeAdjacency.xy);
     uint neighbours = nodeAdjacency.z;
 
-    uvec2 neighbourMatrixCoord;
-
+    // loop through all the neighbours
     for (uint i = 0u; i < neighbours; i++) {
-        if (nodeAdjacencyCoord.x >= adjacencySize.x) {
+        if (nodeAdjacencyCoord.x >= adjacencySize.x) { // texture is over, go to the next line
             nodeAdjacencyCoord.x = 0;
             nodeAdjacencyCoord.y += 1;
         }
 
-        neighbourMatrixCoord = texelFetch(adjacency, nodeAdjacencyCoord, 0).xy;
+        // get the matrix coordinates of the neighbour
+        uvec2 neighbourMatrixCoord = texelFetch(adjacency, nodeAdjacencyCoord, 0).xy;
+
+        // now get the position of the neighbour
         vec2 neighbourPosition = texelFetch(positions, ivec2(neighbourMatrixCoord), 0).xy;
 
+        // simple spring embedder algorithm
         vec2 delta = neighbourPosition - nodePosition;
         float dist = length(delta);
-
         float lengthDifference = dist - springRestLength;
 
         force += springDampening * lengthDifference * normalize(delta);
@@ -96,25 +101,19 @@ void main() {
         nodeAdjacencyCoord.x += 1;
     }
 
-    for (int i = 0; i < 30; i++) {
-        for (int j = 0; j < 30; j++) {
-            
-            if (i == nodeMatrixCoord.x && j == nodeMatrixCoord.y) {
-                continue;
-            }
-
+    // repulsive, forces, must access all other nodes
+    for (int i = 0; i < positionsSize.x; i++) {
+        for (int j = 0; j < positionsSize.y; j++) {
             vec2 otherPosition = texelFetch(positions, ivec2(i, j), 0).xy;
-
-            if (otherPosition == vec2(0.0)) {
-                break;
-            }
 
             vec2 delta = otherPosition - nodePosition;
             float dist2 = dot(delta, delta);
 
-            float repulsion = charge2 / dist2;
+            if (dist2 != 0.0) {
+                float repulsion = charge2 / dist2;
 
-            force -= repulsion * normalize(delta);
+                force -= repulsion * normalize(delta);
+            }
         }
     }
 
