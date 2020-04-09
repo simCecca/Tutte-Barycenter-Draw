@@ -71,6 +71,9 @@ class Controller {
     }
 
     onAlgorithmChanged(value) {
+        if (this.algorithm) {
+            this.algorithm.onRemove();
+        }
         if (value === "Tutte") {
             this.algorithm = new RaphsonNewtonAlgorithm(this.graph, window.innerWidth, window.innerHeight);
             this.setSpringEmbeddersSettingsVisibility(false);

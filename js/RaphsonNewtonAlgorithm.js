@@ -2,39 +2,39 @@
 class RaphsonNewtonAlgorithm {
 
     constructor(graph, width, height){
-        this.graph = null;
-        this.width = width;
-        this.height = height;
+        this._graph = null;
+        this._width = width;
+        this._height = height;
 
-        this.speed = 0.01;
+        this._speed = 0.01;
 
         this.setGraph(graph);
     }
 
     setProperties(properties) {
-        this.speed = properties.speed || this.speed;
+        this._speed = properties.speed || this._speed;
     }
 
     setGraph(graph) {
-        this.graph = graph;
-        this.graph.nodes.forEach(node => {
-            node.x = this.width/2;
-            node.y = this.height/2;
+        this._graph = graph;
+        this._graph.nodes.forEach(node => {
+            node.x = this._width/2;
+            node.y = this._height/2;
             node.isFixed = false;
         });
-        this.positionExternalFace();
+        this._positionExternalFace();
     }
 
-    positionExternalFace() {
+    _positionExternalFace() {
         // remove unlock fixed nodes
-        this.graph.nodes.forEach(node => { node.isFixed = false; });
+        this._graph.nodes.forEach(node => { node.isFixed = false; });
 
-        const externalFace = this.graph.computeExternalFace();
+        const externalFace = this._graph.computeExternalFace();
 
         const numberOfNodes = externalFace.length;
         const slice = (2 * Math.PI) / numberOfNodes;
-        const halfWidth = this.width / 2;
-        const halfHeight = this.height / 2;
+        const halfWidth = this._width / 2;
+        const halfHeight = this._height / 2;
         const offset = 20;
 
         const angleAdder = externalFace.length % 2 === 0 ? slice/2 : Math.PI/2;
@@ -47,13 +47,13 @@ class RaphsonNewtonAlgorithm {
     }
 
     onCanvasSizeChanged(width, height) {
-        this.width = width;
-        this.height = height;
-        this.positionExternalFace();
+        this._width = width;
+        this._height = height;
+        this._positionExternalFace();
     }
 
     computeNextPositions() {
-        this.graph.nodes.forEach((node) => {
+        this._graph.nodes.forEach((node) => {
             if (node.isFixed === true) return;
             let sumX = 0;
             let sumY = 0;
@@ -64,8 +64,10 @@ class RaphsonNewtonAlgorithm {
 
             const nextX = sumX / node.neighbours.length;
             const nextY = sumY / node.neighbours.length;
-            node.x += (nextX - node.x) * this.speed;
-            node.y += (nextY - node.y) * this.speed;
+            node.x += (nextX - node.x) * this._speed;
+            node.y += (nextY - node.y) * this._speed;
         });
     }
+
+    onRemove() {}
 }

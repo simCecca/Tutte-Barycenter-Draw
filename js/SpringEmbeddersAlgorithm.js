@@ -8,7 +8,6 @@ class SpringEmbeddersAlgorithm {
 
         this.speed = 0.01;
 
-        // TODO other spring embedder params
         this.springRestLength = 10
         this.springDampening = 0.15;
         this.charge = 150 * 150
@@ -86,4 +85,6 @@ class SpringEmbeddersAlgorithm {
             node.y += forceY * this.speed;
         });
     }
+
+    onRemove() {}
 }

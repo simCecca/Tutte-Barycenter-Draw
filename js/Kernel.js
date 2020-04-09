@@ -79,6 +79,12 @@ class Kernel {
         return location;
     }
 
+    /**
+     * Sets an input numeric value.
+     * @param {string} name the name of the unifrom in the shader 
+     * @param {number} value the value to set
+     * @param {boolean} isInteger whether this value is an integer, optional: by default this is false.
+     */
     setInputNumber(name, value, isInteger) {
         isInteger = isInteger || false;
         this._shader.use();
@@ -91,6 +97,11 @@ class Kernel {
         this._shader.stop();
     }
 
+    /**
+     * Sets an input texture.
+     * @param {string} name the name of the sampler in the the shader
+     * @param {Texture} texture the texture that will be used for that sampler
+     */
     setInputTexture(name, texture) {
         const textureInfo = this._textureNameToTextureInfo.get(name);
         if (textureInfo) {
@@ -109,6 +120,11 @@ class Kernel {
         });
     }
 
+    /**
+     * Sets the texture used as the output by this kernel.
+     * This texture must have useForIO set to true.
+     * @param {Texture} texture 
+     */
     setOutputTexture(texture) {
         this._outputTexture = texture;
     }
@@ -143,5 +159,13 @@ class Kernel {
             gl.activeTexture(gl.TEXTURE0 + index);
             gl.bindTexture(gl.TEXTURE_2D, null);
         }
+    }
+
+    /**
+     * Deletes this Kernel
+     */
+    delete() {
+        this._shader.delete();
+        this._shader = null;
     }
 }

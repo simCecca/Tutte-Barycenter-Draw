@@ -65,7 +65,8 @@ void main() {
 
     vec2 nodePosition = texelFetch(positions, nodeMatrixCoord, 0).xy;
 
-    if (nodePosition == vec2(0.0)) {
+    // check the default value in SpringEmbedderGPUAlgorithm
+    if (nodePosition == vec2(-10000.0)) {
         discard;
     }
 

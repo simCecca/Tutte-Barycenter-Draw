@@ -55,8 +55,7 @@ class SpringEmbeddersGPUAlgorithm {
      * of neighbours for that node.
      * The adjacency matrix contains, for each node, the list of its neigbours.
      * Given the node with index i, we can access its position using the respective matrix
-     * coordinates: [i / rows, i % columns]. The same coordinates can be used to access the node matrix.
-     * To access the adjacency matrix for a node you need adjacencyMatrix[nodesMatrix[i / rows, i % columns]].
+     * coordinates: [i % columns, i / rows]. The same coordinates can be used to access the node matrix.
      * nodes and positions matrices have size sqrt(n) x sqrt(n) where n is the number of nodes.
      * The adjacency matrix has size sqrt(m) x sqrt(m) where m is the number of edges.
      */
@@ -71,7 +70,9 @@ class SpringEmbeddersGPUAlgorithm {
         const totalNumberOfEdges = graph.nodes.map(node => node.neighbours.length).reduce((total, current) => total + current, 0);
         const adjacencyMatrixSize = Math.ceil(Math.sqrt(totalNumberOfEdges));
 
-        // create the matrices that will hold the node and neighbor data 
+        // nodesMatrixSize * nodesMatrixSize * 4 for each node we store the x and y coords of the
+        // adj matrix and the number of nodes (the extra value is useless but 4 values textures are usually faster
+        // than 3 values counterparts: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices).
         const nodesMatrix = new Uint16Array(nodesMatrixSize * nodesMatrixSize * 4);
 
         // adjacencyMatrixSize x adjacencyMatrixSize x 2: we store the coordinates of nodes
@@ -79,6 +80,7 @@ class SpringEmbeddersGPUAlgorithm {
 
         // the position matrix nodesMatrixSize x nodesMatrixSize x 2: just store x and y
         const positionsMatrix = new Float32Array(nodesMatrixSize * nodesMatrixSize * 2);
+        positionsMatrix.fill(-10000.0); // a default value that should not interfere with valid nodes
 
         let adjMatrixNextFreeSpotIndex = 0;
         let adjacencyMatrixInsertIndex = 0;
@@ -145,19 +147,12 @@ class SpringEmbeddersGPUAlgorithm {
     }
 
     computeNextPositions() {
-        for (let i = 0; i < 1000; i++) { 
-            this._kernel.setInputTexture("positions", this._positionsTexture);
-            this._kernel.setOutputTexture(this._outputTexture);
+        this._kernel.setInputTexture("positions", this._positionsTexture);
+        this._kernel.setOutputTexture(this._outputTexture);
 
-            this._kernel.execute();
-            
-
-            // swap input and output
-            [this._positionsTexture, this._outputTexture] = [this._outputTexture, this._positionsTexture];
-        }
+        this._kernel.execute();
 
         const positions = this._outputTexture.getData();
-
 
         for (let i = 0; i < this._graph.nodes.length; i++) {
             const node = this._graph.nodes[i];
@@ -169,5 +164,24 @@ class SpringEmbeddersGPUAlgorithm {
                 this._outputTexture.updateData(positions);
             }
         }
+
+        // swap input and output
+        [this._positionsTexture, this._outputTexture] = [this._outputTexture, this._positionsTexture];
+    }
+
+    onRemove() {
+        this._kernel.delete();
+        this._kernel = null;
+        if (this._nodesTexture === null) {
+            return; // texture not set, cannot delete
+        }
+        this._nodesTexture.delete();
+        this._nodesTexture = null;
+        this._outputTexture.delete();
+        this._outputTexture = null;
+        this._positionsTexture.delete();
+        this._positionsTexture = null;
+        this._adjacencyTexture.delete();
+        this._adjacencyTexture = null;
     }
 }

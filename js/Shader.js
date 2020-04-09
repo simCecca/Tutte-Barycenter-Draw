@@ -68,6 +68,8 @@ class Shader {
         const vertexShader = this._compileShader(vertexShaderSource, gl.VERTEX_SHADER);
         const fragmentShader = this._compileShader(fragmentShaderCode, gl.FRAGMENT_SHADER);
         this._program = this._createProgram(vertexShader, fragmentShader);
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
     }
 
     /**
@@ -139,5 +141,13 @@ class Shader {
      */
     stop() {
         gl.useProgram(null);
+    }
+
+    /**
+     * Deletes this Shader.
+     */
+    delete() {
+        gl.deleteProgram(this._program);
+        this._program = null;
     }
 }
