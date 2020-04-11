@@ -151,9 +151,11 @@ class SpringEmbeddersGPUAlgorithm {
 
         this._kernel.execute();
 
-        const positions = this._outputTexture.getData();
+        //const positions = this._outputTexture.getData();
 
-        for (let i = 0; i < this._graph.nodes.length; i++) {
+        ctrl.renderer.setPositionsTexture(this._outputTexture);
+
+        /*for (let i = 0; i < this._graph.nodes.length; i++) {
             const node = this._graph.nodes[i];
             if (!node.isFixed) {
                 [node.x, node.y] = [positions[i * 2], positions[i * 2 + 1]];
@@ -162,7 +164,7 @@ class SpringEmbeddersGPUAlgorithm {
                 [positions[i * 2], positions[i * 2 + 1]] = [node.x, node.y];
                 this._outputTexture.updateData(positions);
             }
-        }
+        }*/
 
         // swap input and output
         [this._positionsTexture, this._outputTexture] = [this._outputTexture, this._positionsTexture];

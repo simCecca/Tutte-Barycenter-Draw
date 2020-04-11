@@ -2,40 +2,49 @@
 class D3Renderer {
 
     constructor() {
-        this.svgElement = d3.select("#svgCanvas")
+        this._svgGroup = d3.select("#svgCanvas")
+        .attr("class", "fullscreenCanvas")
+        .attr("style", "display: block")
         .call(d3.zoom().on("zoom", () => {
-            this.svgElement.attr("transform", d3.event.transform)
+            this._svgGroup.attr("transform", d3.event.transform)
         }))
-        .append("g")
+        .append("g");
 
-        this.graph = null;
+        this._graph = null;
 
-        this.renderNodeLabels = false;
-        this.renderEdgeLabels = false;
+        this._renderNodeLabels = false;
+        this._renderEdgeLabels = false;
 
-        this.svgNodes = null;
-        this.svgEdges = null;
+        this._svgNodes = null;
+        this._svgEdges = null;
+    }
+
+    onRemove() {
+        this._svgGroup.remove();
+        
+        d3.select("#svgCanvas")
+        .attr("style", "display: none");
     }
 
     setRenderNodeLabels(value) {
         if (value === false)
-            this.svgElement.selectAll("text.nodes").remove();
+            this._svgGroup.selectAll("text.nodes").remove();
 
-        this.renderNodeLabels = value;
+        this._renderNodeLabels = value;
     }
     setRenderEdgeLabels(value) {
         if (value === false)
-            this.svgElement.selectAll("text.edges").remove();
+            this._svgGroup.selectAll("text.edges").remove();
 
-        this.renderEdgeLabels = value;
+        this._renderEdgeLabels = value;
     }
 
     setGraph(graph) {
         this._emptyCanvas();
-        this.graph = graph;
+        this._graph = graph;
 
-        this.svgEdges = this.svgElement.selectAll("line")
-        .data(this.graph.edges)
+        this._svgEdges = this._svgGroup.selectAll("line")
+        .data(this._graph.edges)
         .enter()
         .append("line")
         .attr("x1", edge => edge.source.x)
@@ -43,8 +52,8 @@ class D3Renderer {
         .attr("x2", edge => edge.target.x)
         .attr("y2", edge => edge.target.y);
 
-        this.svgNodes = this.svgElement.selectAll("circle")
-            .data(this.graph.nodes)
+        this._svgNodes = this._svgGroup.selectAll("circle")
+            .data(this._graph.nodes)
             .enter()
             .append("circle")
             .attr("r", 3)
@@ -63,17 +72,17 @@ class D3Renderer {
     }
 
     _emptyCanvas() {
-        this.svgElement.html("");
+        this._svgGroup.html("");
     }
 
     _renderNodes() {
-        this.svgNodes
+        this._svgNodes
             .attr("cx", node => { return node.x })
             .attr("cy", node => { return node.y });
     }
 
     _renderEdges() {
-        this.svgEdges
+        this._svgEdges
             .attr("x1", edge => edge.source.x)
             .attr("y1", edge => edge.source.y)
             .attr("x2", edge => edge.target.x)
@@ -81,7 +90,7 @@ class D3Renderer {
     }
 
     _renderLabels(elements, kind, position = d => [d.x, d.y]) {
-        const svgTexts = this.svgElement.selectAll(`text.${kind}`)
+        const svgTexts = this._svgGroup.selectAll(`text.${kind}`)
             .data(elements);
 
         svgTexts.enter()
@@ -99,11 +108,11 @@ class D3Renderer {
         this._renderEdges();
         this._renderNodes();
 
-        if (this.renderNodeLabels === true)
-            this._renderLabels(this.graph.nodes, "nodes", n => [n.x + 10, n.y]);
+        if (this._renderNodeLabels === true)
+            this._renderLabels(this._graph.nodes, "nodes", n => [n.x + 10, n.y]);
 
-        if (this.renderEdgeLabels === true)
-            this._renderLabels(this.graph.edges, "edges", e => [(e.source.x + e.target.x)/2,
+        if (this._renderEdgeLabels === true)
+            this._renderLabels(this._graph.edges, "edges", e => [(e.source.x + e.target.x)/2,
                 (e.source.y + e.target.y)/2 - 10]);
     }
 

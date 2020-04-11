@@ -91,11 +91,21 @@ class Shader {
         gl.uniform2fv(index, value);
     }
 
+    /**
+     * Sets the value of a i/uvec2 uniform
+     * @param {string} name the name of the uniform
+     * @param {IntArray} value the value used to set the uniform
+     */
     setIntVec2(name, value) {
         const location = this.getUniformLocationFor(name);
         gl.uniform2iv(location, value);
     }
 
+    /**
+     * Sets the value of a float uniform
+     * @param {string} name the name of the uniform 
+     * @param {*} value the value used to set the uniform
+     */
     setFloat(name, value) {
         const location = this.getUniformLocationFor(name);
         gl.uniform1f(location, value);
@@ -112,6 +122,25 @@ class Shader {
 
     setIntIndex(index, value) {
         gl.uniform1i(index, value);
+    }
+
+    /**
+     * Sets the value of a mat3 uniform
+     * @param {string} name the name of the uniform
+     * @param {mat3} value the value used to set the uniform
+     */
+    setMat3(name, value) {
+        const location = this.getUniformLocationFor(name);
+        gl.uniformMatrix3fv(location, false, value);
+    }
+
+    /**
+     * Sets the value of a mat3 uniform given its index
+     * @param {number} index the location of the uniform
+     * @param {mat3} value the value used to set the uniform
+     */
+    setMat3Index(index, value) {
+        gl.uniformMatrix3fv(index, false, value);
     }
 
     /**

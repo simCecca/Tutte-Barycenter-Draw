@@ -50,21 +50,21 @@ out vec2 pos;
 
 uniform vec2 mousePosition;
 
-const float w = 400.;
+const float w = 700.;
 const float h = 400.;
 
 mat3 t = mat3(2.0 / w, 0.0, 0.0,
              0.0, 2.0 / -h, 0.0,
              -1.0, 1.0, 1.0);
 
-float radius = 5.0;
+float radius = 15.0;
 
 void main() {
     pos = vPosition;
 
     vec3 v = t * vec3(radius * vPosition + iCenter  + mousePosition * 0.0, 1.0);
 
-    gl_Position = vec4(vec2(v), 0.0, 1.0);
+    gl_Position = vec4(vec2(v*0.0) + pos, 0.0, 1.0);
 }`;
 
 const circleFragmentShader = `#version 300 es

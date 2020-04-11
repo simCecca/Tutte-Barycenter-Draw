@@ -90,6 +90,21 @@ class Controller {
         this.algorithm.setProperties(this._readAlgorithmProperties());
     }
 
+    onRendererChanged(value) {
+        if (this.renderer) {
+            this.renderer.onRemove();
+        }
+
+        if (value === "d3") {
+            this.renderer = new D3Renderer();
+        }
+        else if (value === "webgl") {
+            this.renderer = new WebGLRenderer();
+        }
+
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
     onFileSelect(evt) {
         const files = evt.target.files;
         const file = files[0];
