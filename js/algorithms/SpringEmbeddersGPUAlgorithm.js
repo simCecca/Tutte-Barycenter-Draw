@@ -120,7 +120,6 @@ class SpringEmbeddersGPUAlgorithm {
 
         this._kernel.setInputTexture("nodes", this._nodesTexture);
         this._kernel.setInputTexture("adjacency", this._adjacencyTexture);
-        //this._kernel.setLastNodeCoord(this._indexToMatrixCoordinates(graph.nodes.length - 1, nodesMatrixSize, nodesMatrixSize));
     }
 
     setGraph(graph) {

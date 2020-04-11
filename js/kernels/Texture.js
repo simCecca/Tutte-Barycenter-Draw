@@ -119,7 +119,14 @@ class Texture {
         this._texture = null;
         this._fbo = null;
 
-        this._dataArrayType = data.constructor;
+        // store array so that it does not have to be created
+        // every time getData is called
+        if (useForIO) {
+            this._data = data;
+        }
+        else {
+            this._data = null;
+        }
 
         this._createTexture(data);
         if (this._useForIO) {
@@ -159,13 +166,12 @@ class Texture {
      * @returns {*} the data contained in this Texture
      */
     getData() {
-        const outData = new this._dataArrayType(this._width * this._height * this._dataPerPixel);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._fbo);
         gl.readBuffer(gl.COLOR_ATTACHMENT0);
-        gl.readPixels(0, 0, this._width, this._height, this._dataFormat, this._dataType, outData);
+        gl.readPixels(0, 0, this._width, this._height, this._dataFormat, this._dataType, this._data);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        return outData;
+        return this._data;
     }
 
     /**

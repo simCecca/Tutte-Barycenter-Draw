@@ -2,7 +2,7 @@ class Controller {
 
     constructor() {
         this.graph = new Graph();
-        this.renderer = new Renderer();
+        this.renderer = new D3Renderer();
         this.algorithm = new RaphsonNewtonAlgorithm(this.graph, window.innerWidth, window.innerHeight);
 
         window.addEventListener("resize", () => this.onWindowSizeChange());

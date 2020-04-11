@@ -1,5 +1,5 @@
 
-class Renderer {
+class D3Renderer {
 
     constructor() {
         this.svgElement = d3.select("#svgCanvas")
@@ -30,22 +30,8 @@ class Renderer {
         this.renderEdgeLabels = value;
     }
 
-    createArrowDef() {
-        this.svgElement.append("svg:defs").append("svg:marker")
-            .attr("id", "triangle")
-            .attr("refX", 20)
-            .attr("refY", 6)
-            .attr("markerWidth", 30)
-            .attr("markerHeight", 30)
-            .attr("orient", "auto")
-            .append("path")
-            .attr("d", "M 0 0 12 6 0 12 3 6")
-            .style("fill", "black");
-    }
-
     setGraph(graph) {
-        this.emptyCanvas();
-        this.createArrowDef();
+        this._emptyCanvas();
         this.graph = graph;
 
         this.svgEdges = this.svgElement.selectAll("line")
@@ -56,10 +42,6 @@ class Renderer {
         .attr("y1", edge => edge.source.y)
         .attr("x2", edge => edge.target.x)
         .attr("y2", edge => edge.target.y);
-        /*.each((edge, i, node) => {
-            if (edge.directed === true)
-                d3.select(node[i]).attr("marker-end", "url(#triangle)");
-        });*/
 
         this.svgNodes = this.svgElement.selectAll("circle")
             .data(this.graph.nodes)
@@ -80,17 +62,17 @@ class Renderer {
         // d3 renderer doesn't do anything here
     }
 
-    emptyCanvas() {
+    _emptyCanvas() {
         this.svgElement.html("");
     }
 
-    renderNodes() {
+    _renderNodes() {
         this.svgNodes
             .attr("cx", node => { return node.x })
             .attr("cy", node => { return node.y });
     }
 
-    renderEdges() {
+    _renderEdges() {
         this.svgEdges
             .attr("x1", edge => edge.source.x)
             .attr("y1", edge => edge.source.y)
@@ -98,7 +80,7 @@ class Renderer {
             .attr("y2", edge => edge.target.y);
     }
 
-    renderLabels(elements, kind, position = d => [d.x, d.y]) {
+    _renderLabels(elements, kind, position = d => [d.x, d.y]) {
         const svgTexts = this.svgElement.selectAll(`text.${kind}`)
             .data(elements);
 
@@ -114,14 +96,14 @@ class Renderer {
     }
 
     render() {
-        this.renderEdges();
-        this.renderNodes();
+        this._renderEdges();
+        this._renderNodes();
 
         if (this.renderNodeLabels === true)
-            this.renderLabels(this.graph.nodes, "nodes", n => [n.x + 10, n.y]);
+            this._renderLabels(this.graph.nodes, "nodes", n => [n.x + 10, n.y]);
 
         if (this.renderEdgeLabels === true)
-            this.renderLabels(this.graph.edges, "edges", e => [(e.source.x + e.target.x)/2,
+            this._renderLabels(this.graph.edges, "edges", e => [(e.source.x + e.target.x)/2,
                 (e.source.y + e.target.y)/2 - 10]);
     }
 

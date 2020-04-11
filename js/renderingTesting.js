@@ -14,6 +14,8 @@ let mouseEvent = {
 };
 window.addEventListener("mousemove", (event) => {mouseEvent.event = event});
 
+const position = new Float32Array([100.0, 100.0, 200.0, 200.0, 300.0, 300.0]);
+
 const vao = gl.createVertexArray();
 gl.bindVertexArray(vao);
 
@@ -28,28 +30,39 @@ gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
 // unbind
 gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+const ivbo = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, ivbo);
+gl.bufferData(gl.ARRAY_BUFFER, position, gl.STATIC_DRAW);
+
+gl.enableVertexAttribArray(1);
+gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+gl.vertexAttribDivisor(1, 1);
+gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
 gl.bindVertexArray(null);
 
 const circleVertexShader = `#version 300 es
 layout (location = 0) in vec2 vPosition;
+layout (location = 1) in vec2 iCenter;
 
 out vec2 pos;
 
 uniform vec2 mousePosition;
 
-const float w = 100.;
-const float h = 100.;
+const float w = 400.;
+const float h = 400.;
 
 mat3 t = mat3(2.0 / w, 0.0, 0.0,
              0.0, 2.0 / -h, 0.0,
              -1.0, 1.0, 1.0);
 
-float radius = 50.0;
+float radius = 5.0;
 
 void main() {
     pos = vPosition;
 
-    vec3 v = t * vec3(radius * vPosition + mousePosition, 1.0);
+    vec3 v = t * vec3(radius * vPosition + iCenter  + mousePosition * 0.0, 1.0);
 
     gl_Position = vec4(vec2(v), 0.0, 1.0);
 }`;
@@ -62,11 +75,10 @@ in vec2 pos;
 out vec4 outData;
 
 void main() {
-    vec2 scaledPos = pos / vec2(100.0 / 100.0, 1);
-    vec2 dist = scaledPos-vec2(0.0);
-    float p = 1.-smoothstep(0.95,
-                 1.0,
-                 dot(dist,dist));
+    vec2 dist = pos - vec2(0.0);
+    float p = 1.0 - smoothstep(0.7,
+                               1.0,
+                               dot(dist, dist));
 
     outData = vec4(vec3(p, 0.0, 0.0), 1.0);
 }`;
@@ -75,42 +87,51 @@ void main() {
 const lineVertexShader = `#version 300 es
 layout (location = 0) in vec2 vPosition;
 
-out vec2 pos;
 
-uniform vec2 mousePosition;
+uniform vec2 endPosition;
+uniform vec2 startPosition;
 
-vec2 map(vec2 value, vec2 min1, vec2 max1, vec2 min2, vec2 max2) {
-    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
-}
+const float w = 400.;
+const float h = 400.;
+
+out float distY;
+
+mat3 t = mat3(2.0 / w, 0.0, 0.0,
+             0.0, 2.0 / -h, 0.0,
+             -1.0, 1.0, 1.0);
 
 void main() {
-    vec2 pt1 = vec2(0);
-    vec2 pt2 = map(mousePosition, vec2(0.0), vec2(700.0, 400.0), vec2(-1.0, 1.0), vec2(1.0, -1.0));
+    float lineWidth = 15.0;
 
-    float lineWidth = 0.005;
+    distY = vPosition.y;
 
-    vec2 diff = pt2 - pt1;
+    vec2 diff = endPosition - startPosition;
     float angle = atan(diff.y, diff.x);
 
     mat2 rotation = mat2(cos(angle), sin(angle),
                         -sin(angle), cos(angle));
 
-    mat2 scale = mat2(distance(pt1, pt2) / 2.0, 0,
-    0, lineWidth);
+    mat2 scale = mat2(length(diff) / 2.0, 0.0,
+                     0.0, lineWidth);
 
-    pos = (pt1 + pt2) / 2.0 + rotation * scale * vPosition;
-    gl_Position = vec4(pos, 0.0, 1.0);
+    vec2 pos = (startPosition + endPosition) / 2.0 + rotation * scale * vPosition;
+    vec3 transformed = t * vec3(pos, 1.0);
+    gl_Position = vec4(transformed.xy, 0.0, 1.0);
 }`;
 
 const lineFragmentShader = `#version 300 es
 precision mediump float;
 
-in vec2 pos;
+in float distY;
 
 out vec4 outData;
 
 void main() {
-    outData = vec4(vec3(1.0, 0.0, 0.0), 1.0);
+    float p = 1.0 - smoothstep(0.3,
+        1.0,
+        abs(distY));
+
+    outData = vec4(vec3(p, 0.0, 0.0), 1.0);
 }`;
 
 const shader = new Shader(circleVertexShader, circleFragmentShader);
@@ -130,12 +151,14 @@ const renderFunction = () => {
 
     shader.use();
 
+    //shader.setVec2("startPosition", [100, 100]);
+
     if (mouseEvent.event) {
-        shader.setVec2("mousePosition", [mouseEvent.event.x, mouseEvent.event.y]);
+        //shader.setVec2("endPosition", [mouseEvent.event.x, mouseEvent.event.y]);
     }
 
     gl.bindVertexArray(vao);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, 3);
     gl.bindVertexArray(null);
 
     shader.stop();

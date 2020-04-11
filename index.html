@@ -9,21 +9,21 @@
 
     <title>Graph toolkit</title>
 
-    <script src="js/Shader.js"></script>
-    <script src="js/Texture.js"></script>
-    <script src="js/Kernel.js"></script>
-    <script src="js/SpringEmbeddersKernel.js"></script>
+    <script src="js/shaders/Shader.js"></script>
+    <script src="js/kernels/Texture.js"></script>
+    <script src="js/kernels/Kernel.js"></script>
+    <script src="js/kernels/SpringEmbeddersKernel.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="js/GraphFileLoader.js"></script>
-    <script src="js/RaphsonNewtonAlgorithm.js"></script>
-    <script src="js/SpringEmbeddersAlgorithm.js"></script>
-    <script src="js/SpringEmbeddersGPUAlgorithm.js"></script>
-    <script src="js/Renderer.js"></script>
-    <script src="js/Edge.js"></script>
-    <script src="js/Node.js"></script>
-    <script src="js/Graph.js"></script>
-    <script src="js/GraphLoader.js"></script>
-    <script src="js/GraphGLMFromServerLoader.js"></script>
+    <script src="js/graph/GraphFileLoader.js"></script>
+    <script src="js/algorithms/RaphsonNewtonAlgorithm.js"></script>
+    <script src="js/algorithms/SpringEmbeddersAlgorithm.js"></script>
+    <script src="js/algorithms/SpringEmbeddersGPUAlgorithm.js"></script>
+    <script src="js/rendering/D3Renderer.js"></script>
+    <script src="js/graph/Edge.js"></script>
+    <script src="js/graph/Node.js"></script>
+    <script src="js/graph/Graph.js"></script>
+    <script src="js/graph/GraphLoader.js"></script>
+    <script src="js/graph/GraphGLMFromServerLoader.js"></script>
 
 
 </head>
@@ -106,7 +106,7 @@
         <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeErrorDialog()">&times;</a>
     </div>
 
-    <script src="js/sidenav/sidenavControl.js"></script>
+    <script src="js/controllers/Controller.js"></script>
     <script>
         ctrl.openNav();
 

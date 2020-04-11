@@ -7,52 +7,17 @@
         
     </head>
 
-    <canvas id="a" width="100" height="100" style="background-color: black;"></canvas>
+    <body>
+    <canvas id="a" width="400" height="400" style="background-color: black;"></canvas>
 
     <script>
 
-        const offscreen = document.getElementById("a");
-        const gl = offscreen.getContext('webgl2');
-
-        const ext = gl.getExtension("EXT_color_buffer_float");
-        if (!ext) {
-            alert("need EXT_color_buffer_float");
-        }
-        
-        gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
-        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-
-        const data = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-        const t = Texture.createTextureUint8_2(5, 1, data, true);
-        console.log(t.getData());
-
-        const t2 = Texture.createTextureUint8_2(5, 1, data, false);
-
-        const frag = `#version 300 es
-        precision mediump float;
-        precision mediump usampler2D;
-        
-        out uvec2 outData;
-
-        uniform usampler2D inData;
-
-        void main() {
-            uint val = texelFetch(inData, ivec2(gl_FragCoord), 0).r;
-
-            uint multiplier = texelFetch(inData, ivec2(4, 0), 0)[1];
-
-            outData = uvec2(gl_FragCoord);
-        }`;
-
-        const kernel = new Kernel(frag);
-        kernel.setInputTexture("inData", t2);
-        kernel.setOutputTexture(t);
-
-        const a = performance.now();
-        kernel.execute();
-        console.log(t.getData());
-        console.log(performance.now() - a);
+        const gl = document.getElementById("a").getContext('webgl2');
 
     </script>
+
+<script src="renderingTesting.js"></script>
+
+</body>
 
 </html>
