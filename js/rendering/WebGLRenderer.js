@@ -18,10 +18,13 @@ class WebGLRenderer {
         this._canvas.style.display = "block";
         this._canvas.classList.add("fullscreenCanvas");
 
+        this._camera = new Camera(this._canvas);
+
         this._graph = null;
 
         this._width = 0;
         this._height = 0;
+        this._clipMatrix = mat3.create();
 
         /** A texture that contains the positions of the nodes */
         this._positionsTexture = null;
@@ -177,25 +180,20 @@ class WebGLRenderer {
 
         // converts from canvas space (0, 0) -> (width, height)
         // to ndc coordinates (-1, -1) -> (1, 1) flipping the y axis
-        const clipMatrix = mat3.fromValues(2.0 / width, 0.0, 0.0,
+        this._clipMatrix = mat3.fromValues(2.0 / width, 0.0, 0.0,
                                             0.0, 2.0 / -height, 0.0,
                                             -1.0, 1.0, 1.0);
-
-        this._circleShader.use();
-        this._circleShader.setMat3("clipMatrix", clipMatrix);
-        this._circleShader.stop();
-
-        this._lineShader.use();
-        this._lineShader.setMat3("clipMatrix", clipMatrix);
-        this._lineShader.stop();
     }
 
     setPositionsTexture(texture) {
         this._positionsTexture = texture;
     }
 
-    _renderNodes() {
+    _renderNodes(viewClipMatrix) {
         this._circleShader.use();
+
+        this._circleShader.updateViewClipMatrix(viewClipMatrix);
+
         gl.bindVertexArray(this._circleVAO);
 
         gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, this._graph.nodes.length);
@@ -204,8 +202,11 @@ class WebGLRenderer {
         this._circleShader.stop();
     }
 
-    _renderEdges() {
+    _renderEdges(viewClipMatrix) {
         this._lineShader.use();
+
+        this._lineShader.updateViewClipMatrix(viewClipMatrix);
+
         gl.bindVertexArray(this._lineVAO);
 
         gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, this._graph.edges.length);
@@ -219,6 +220,9 @@ class WebGLRenderer {
             throw new Error("oh sheeet");
         }*/
         
+        const viewClipMatrix = mat3.create();
+        mat3.mul(viewClipMatrix, this._clipMatrix, this._camera.getViewMatrix());
+
         // bind position texture
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this._positionsTexture.getTextureId());
@@ -228,8 +232,8 @@ class WebGLRenderer {
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        this._renderEdges();
-        this._renderNodes();
+        this._renderEdges(viewClipMatrix);
+        this._renderNodes(viewClipMatrix);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
     }

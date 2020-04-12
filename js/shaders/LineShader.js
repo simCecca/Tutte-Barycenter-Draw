@@ -5,8 +5,15 @@ class LineShader extends Shader {
 
     constructor() {
         super(LineShader._VERTEX_SHADER, LineShader._FRAGMENT_SHADER);
+
+        this.use();
+        this._viewClipMatrixIndex = this.getUniformLocationFor("viewClipMatrix");
+        this.stop();
     }
 
+    updateViewClipMatrix(matrix) {
+        this.setMat3Index(this._viewClipMatrixIndex, matrix);
+    }
 }
 
 LineShader._VERTEX_SHADER = `#version 300 es
@@ -20,7 +27,7 @@ layout (location = 1) in vec2 iStartPositionsCoords; // should be ivec2, not sup
 layout (location = 2) in vec2 iEndPositionsCoords;
 
 uniform sampler2D positionsTexture;
-uniform mat3 clipMatrix; // converts from canvas space to ndc
+uniform mat3 viewClipMatrix; // converts from canvas space to ndc
 
 // todo become uniform
 float lineWidth = .5;
@@ -50,7 +57,7 @@ void main() {
     vec2 transformedPosition2D = (start + end) / 2.0 + rotation * scale * vPosition;
 
     // convert from canvas space to ndc
-    vec3 transformedPosition = clipMatrix * vec3(transformedPosition2D, 1.0);
+    vec3 transformedPosition = viewClipMatrix * vec3(transformedPosition2D, 1.0);
 
     gl_Position = vec4(transformedPosition.xy, 0.0, 1.0);
 }`;

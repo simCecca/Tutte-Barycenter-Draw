@@ -5,8 +5,15 @@ class CircleShader extends Shader {
 
     constructor() {
         super(CircleShader._VERTEX_SHADER, CircleShader._FRAGMENT_SHADER);
+        
+        this.use();
+        this._viewClipMatrixIndex = this.getUniformLocationFor("viewClipMatrix");
+        this.stop();
     }
 
+    updateViewClipMatrix(matrix) {
+        this.setMat3Index(this._viewClipMatrixIndex, matrix);
+    }
 }
 
 CircleShader._VERTEX_SHADER = `#version 300 es
@@ -19,7 +26,7 @@ layout (location = 1) in vec2 iPositionsCoords; // should be ivec2, not supporte
 out vec2 localPosition;
 
 uniform sampler2D positionsTexture;
-uniform mat3 clipMatrix; // converts from canvas space to ndc
+uniform mat3 viewClipMatrix; // converts from canvas space to ndc
 
 // todo become uniform
 float radius = 5.0;
@@ -31,7 +38,7 @@ void main() {
     vec2 center = texelFetch(positionsTexture, ivec2(iPositionsCoords), 0).xy;
 
     // transform from canvas space to ndc coordinates
-    vec3 transformedPosition = clipMatrix * vec3(center + radius * vPosition, 1.0);
+    vec3 transformedPosition = viewClipMatrix * vec3(center + radius * vPosition, 1.0);
 
     gl_Position = vec4(transformedPosition.xy, 0.0, 1.0);
 }`;
