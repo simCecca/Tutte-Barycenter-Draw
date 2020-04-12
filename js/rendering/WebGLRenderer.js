@@ -14,8 +14,9 @@ class WebGLRenderer {
     ]);
 
     constructor() {
-        document.getElementById("canvas").style.display = "block";
-        document.getElementById("canvas").classList.add("fullscreenCanvas");
+        this._canvas = document.getElementById("canvas");
+        this._canvas.style.display = "block";
+        this._canvas.classList.add("fullscreenCanvas");
 
         this._graph = null;
 
@@ -93,9 +94,8 @@ class WebGLRenderer {
     }
 
     onRemove() {
-        console.log("called")
-        document.getElementById("canvas").classList.remove("fullscreenCanvas");
-        document.getElementById("canvas").style.display = "none";
+        this._canvas.classList.remove("fullscreenCanvas");
+        this._canvas.style.display = "none";
     }
 
     setRenderNodeLabels(value) {
@@ -112,21 +112,21 @@ class WebGLRenderer {
         this._createCircleVAO();
     }
 
-    setSize(w, g) {
-        const { width, height } = document.getElementById("canvas").getBoundingClientRect();
+    setSize(width, height) {
+        // we need to update the size of the canvas. Using css 100% will just
+        // scale the canvas without changing the size of the framebuffer https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+        this._canvas.width = width;
+        this._canvas.height = height;
 
         this._width = width;
-
-
-        console.log(width, height);
-
         this._height = height;
+
         const clipMatrix = mat3.fromValues(2.0 / width, 0.0, 0.0,
                                             0.0, 2.0 / -height, 0.0,
                                             -1.0, 1.0, 1.0);
 
         this._circleShader.use();
-        //this._circleShader.setMat3("clipMatrix", clipMatrix);
+        this._circleShader.setMat3("clipMatrix", clipMatrix);
         this._circleShader.stop();
     }
 
@@ -152,6 +152,8 @@ class WebGLRenderer {
         /*if (this._positionsTexture === null) {
             throw new Error("oh sheeet");
         }*/
+
+        console.log(gl.drawingBufferWidth);
         gl.viewport(0, 0,
             gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
