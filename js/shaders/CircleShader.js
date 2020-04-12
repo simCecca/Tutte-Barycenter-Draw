@@ -1,5 +1,5 @@
 /**
- * Simple shader to draw circles
+ * Simple shader to draw circles.
  */
 class CircleShader extends Shader {
 
@@ -10,8 +10,11 @@ class CircleShader extends Shader {
 }
 
 CircleShader._VERTEX_SHADER = `#version 300 es
+// vertex position
 layout (location = 0) in vec2 vPosition;
-layout (location = 1) in vec2 iPositionsCoords;
+
+// 2d coords used to read the position of a node from the positions texture
+layout (location = 1) in vec2 iPositionsCoords; // should be ivec2, not supported by the standard https://stackoverflow.com/questions/46553165/what-are-the-valid-types-for-a-webgl-vertex-shader-attribute
 
 out vec2 localPosition;
 
@@ -24,11 +27,13 @@ float radius = 5.0;
 void main() {
     localPosition = vPosition;
 
+    // read the position of the node from the texture
     vec2 center = texelFetch(positionsTexture, ivec2(iPositionsCoords), 0).xy;
 
-    vec3 transformedPosition = clipMatrix * vec3(radius * vPosition, 1.0);
+    // transform from canvas space to ndc coordinates
+    vec3 transformedPosition = clipMatrix * vec3(center + radius * vPosition, 1.0);
 
-    gl_Position = vec4(vec2(transformedPosition * 0.0) + vPosition, 0.0, 1.0);
+    gl_Position = vec4(transformedPosition.xy, 0.0, 1.0);
 }`;
 
 CircleShader._FRAGMENT_SHADER = `#version 300 es

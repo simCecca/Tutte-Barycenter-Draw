@@ -36,6 +36,7 @@ class WebGLRenderer {
         this._VBOs = [];
 
         this._circleShader = new CircleShader();
+        this._lineShader = new LineShader();
     }
 
     /**
@@ -50,7 +51,7 @@ class WebGLRenderer {
         gl.vertexAttribPointer(attribute, dataPerUnit, type, false, stride, offset);
 
         if (useForInstance === true) {
-            gl.vertexAttribDivisor(1, 1);
+            gl.vertexAttribDivisor(attribute, 1);
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
@@ -63,13 +64,23 @@ class WebGLRenderer {
         return [col, row];
     }
 
+    _setupShaders() {
+        this._circleShader.use();
+        this._circleShader.setInt("positionsTexture", 0);
+        this._circleShader.stop();
+
+        this._lineShader.use();
+        this._lineShader.setInt("positionsTexture", 0);
+        this._lineShader.stop();
+    }
+
     _createCircleVAO() {
         const positionsMatrixSize = Math.ceil(Math.sqrt(this._graph.nodes.length));
 
         // build the buffer containing, for every node instance
         // the coordinates in the positions texture (see kernel)
         // from which the position of the node should be read.
-        const positionsTextureNodeCoords = new Uint8Array(this._graph.nodes.length * 2); // x y for each node
+        const positionsTextureNodeCoords = new Int16Array(this._graph.nodes.length * 2); // x y for each node
 
         this._graph.nodes.forEach((node, i) => {
             const coords = this._indexToMatrixCoordinates(i, positionsMatrixSize, positionsMatrixSize);
@@ -85,15 +96,56 @@ class WebGLRenderer {
 
         // puts the coordinates where the shader can retrieve the node position
         // fom the positions texture into vertex attrib 1
-        //const posTextureVBO = this._createVBO(positionsTextureNodeCoords, 2, gl.UNSIGNED_BYTE, 0, 0, 1, true);
+        const posTextureVBO = this._createVBO(positionsTextureNodeCoords, 2, gl.SHORT, 0, 0, 1, true);
 
         gl.bindVertexArray(null);
 
         this._VBOs.push(quadVBO);
-        //this._VBOs.push(posTextureVBO);
+        this._VBOs.push(posTextureVBO);
+    }
+
+    _createLineVAO() {
+        const positionsMatrixSize = Math.ceil(Math.sqrt(this._graph.nodes.length));
+
+        // creates two buffer representing the coordinates in _positionsTexture where it is possible
+        // to find the start and end coordinates of an edge
+        const sourcePositionsTexturesNodeCoords = new Int16Array(this._graph.edges.length * 2); // x y for each node
+        const targetPositionsTexturesNodeCoords = new Int16Array(this._graph.edges.length * 2); // x y for each node
+
+        this._graph.edges.forEach((edge, i) => {
+            const sourceIndex = this._graph.nodes.indexOf(edge.source);
+            const targetIndex = this._graph.nodes.indexOf(edge.target);
+
+            const sourceCoords = this._indexToMatrixCoordinates(sourceIndex, positionsMatrixSize, positionsMatrixSize);
+            const targetCoords = this._indexToMatrixCoordinates(targetIndex, positionsMatrixSize, positionsMatrixSize);
+
+            sourcePositionsTexturesNodeCoords.set(sourceCoords, i * 2);
+            targetPositionsTexturesNodeCoords.set(targetCoords, i * 2);
+        });
+
+        this._lineVAO = gl.createVertexArray();
+        gl.bindVertexArray(this._lineVAO);
+
+        // puts the vertex coordinates of the quad in vertex attrib 0
+        const quadVBO = this._createVBO(WebGLRenderer._QUAD_VERTICES, 2, gl.FLOAT, 0, 0, 0, false);
+
+        // puts the coordinates where the shader can retrieve the edge start position
+        // fom the positions texture into vertex attrib 1
+        const sourceTextureVBO = this._createVBO(sourcePositionsTexturesNodeCoords, 2, gl.SHORT, 0, 0, 1, true);
+
+        // puts the coordinates where the shader can retrieve the edge end position
+        // fom the positions texture into vertex attrib 2
+        const targetTextureVBO = this._createVBO(targetPositionsTexturesNodeCoords, 2, gl.SHORT, 0, 0, 2, true);
+
+        gl.bindVertexArray(null);
+
+        this._VBOs.push(quadVBO);
+        this._VBOs.push(sourceTextureVBO);
+        this._VBOs.push(targetTextureVBO);
     }
 
     onRemove() {
+        // hides the webgl canvas
         this._canvas.classList.remove("fullscreenCanvas");
         this._canvas.style.display = "none";
     }
@@ -110,6 +162,8 @@ class WebGLRenderer {
         this._graph = graph;
 
         this._createCircleVAO();
+        this._createLineVAO();
+        this._setupShaders()
     }
 
     setSize(width, height) {
@@ -121,6 +175,8 @@ class WebGLRenderer {
         this._width = width;
         this._height = height;
 
+        // converts from canvas space (0, 0) -> (width, height)
+        // to ndc coordinates (-1, -1) -> (1, 1) flipping the y axis
         const clipMatrix = mat3.fromValues(2.0 / width, 0.0, 0.0,
                                             0.0, 2.0 / -height, 0.0,
                                             -1.0, 1.0, 1.0);
@@ -128,6 +184,10 @@ class WebGLRenderer {
         this._circleShader.use();
         this._circleShader.setMat3("clipMatrix", clipMatrix);
         this._circleShader.stop();
+
+        this._lineShader.use();
+        this._lineShader.setMat3("clipMatrix", clipMatrix);
+        this._lineShader.stop();
     }
 
     setPositionsTexture(texture) {
@@ -145,23 +205,32 @@ class WebGLRenderer {
     }
 
     _renderEdges() {
+        this._lineShader.use();
+        gl.bindVertexArray(this._lineVAO);
 
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, this._graph.edges.length);
+
+        gl.bindVertexArray(null);
+        this._lineShader.stop();
     }
 
     render() {
         /*if (this._positionsTexture === null) {
             throw new Error("oh sheeet");
         }*/
+        
+        // bind position texture
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this._positionsTexture.getTextureId());
 
-        console.log(gl.drawingBufferWidth);
         gl.viewport(0, 0,
             gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        // bind position texture
-
         this._renderEdges();
         this._renderNodes();
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
     }
 }
