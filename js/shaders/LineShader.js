@@ -23,7 +23,7 @@ uniform sampler2D positionsTexture;
 uniform mat3 clipMatrix; // converts from canvas space to ndc
 
 // todo become uniform
-float lineWidth = 1.0;
+float lineWidth = .5;
 
 void main() {
     // read the start position of the edge
