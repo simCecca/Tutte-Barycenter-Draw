@@ -6,6 +6,7 @@ class D3Renderer {
         .attr("class", "fullscreenCanvas")
         .attr("style", "display: block")
         .call(d3.zoom().on("zoom", () => {
+            console.log(d3.event.transform);
             this._svgGroup.attr("transform", d3.event.transform)
         }))
         .append("g");

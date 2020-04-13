@@ -6,7 +6,7 @@ class RaphsonNewtonAlgorithm {
         this._width = width;
         this._height = height;
 
-        this._speed = 0.01;
+        this._speed = 1.0;
 
         this.setGraph(graph);
     }

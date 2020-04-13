@@ -219,7 +219,6 @@ class WebGLRenderer {
         /*if (this._positionsTexture === null) {
             throw new Error("oh sheeet");
         }*/
-        
         const viewClipMatrix = mat3.create();
         mat3.mul(viewClipMatrix, this._clipMatrix, this._camera.getViewMatrix());
 
