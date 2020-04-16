@@ -183,6 +183,8 @@ class WebGLRenderer {
         this._clipMatrix = mat3.fromValues(2.0 / width, 0.0, 0.0,
                                             0.0, 2.0 / -height, 0.0,
                                             -1.0, 1.0, 1.0);
+
+        this._camera.updateClipMatrix(this._clipMatrix);
     }
 
     setPositionsTexture(texture) {

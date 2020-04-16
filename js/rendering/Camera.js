@@ -20,15 +20,20 @@ class Camera {
         this._mousePosition = vec3.fromValues(0.0, 0.0, 1.0);
 
         this._zoom = 1.0;
-        this._cameraPosition = vec3.fromValues(0, 0, 1.0);
+        this._cameraPosition = vec3.fromValues(0, 0, 1.0); // local space position of the mouse
 
-        this._clipMatrix = mat3.fromValues(2.0 / canvas.width, 0.0, 0.0,
-            0.0, 2.0 / -canvas.height, 0.0,
-            -1.0, 1.0, 1.0);
+        // clip matrix, used to compute canvas space position of the mouse
+        this._clipMatrix = mat3.create();
 
         this._mouseIsDown = false;
+
+        /** position of the camera when the use starts moving it */
         this._startDragCameraPosition = vec3.fromValues(0.0, 0.0, 1.0);
+
+        /** position of the mouse (canvas space) when the user starts moving the camera */
         this._startDragMousePosition = vec3.fromValues(0.0, 0.0, 1.0);
+        
+        /** the inverse view clip matrix  */
         this._startDragInverseViewClipMatrix = mat3.create();
 
         this._setupEvents();
@@ -45,6 +50,7 @@ class Camera {
     }
 
     _onZoom(event) {
+        // canvas space position of the mouse before zooming
         const preZoomMousePositionViewSpace = vec3.create();
         vec3.transformMat3(preZoomMousePositionViewSpace, this._mousePosition, this._getInverseViewClipMatrix());
 
@@ -55,15 +61,19 @@ class Camera {
             this._zoom *= Camera._ZOOM_FACTOR;
         }
 
+        // canvas space position of the mouse after zooming
         const postZoomMousePositionViewSpace = vec3.create();
         vec3.transformMat3(postZoomMousePositionViewSpace, this._mousePosition, this._getInverseViewClipMatrix());
 
+        // compute how much the mouse "moved" after zooming
         const difference = vec3.create();
         vec3.sub(difference, preZoomMousePositionViewSpace, postZoomMousePositionViewSpace);
 
+        // compensate for the mouse movement so that the zoom is actually performed 
+        // towards the mouse position
         vec3.add(this._cameraPosition, this._cameraPosition, difference);
 
-        this._cameraPosition[2] = 1;
+        this._cameraPosition[2] = 1; // make sure camera position is still in valid homogeneous coords
     }
 
     _onMouseMove(event) {
@@ -76,16 +86,20 @@ class Camera {
         const rect = this._canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        this._mousePosition = vec3.fromValues(-1 + 2 * x / this._canvas.width, +1 - 2 * y / this._canvas.height, 1.0);
 
+        /* convert the mouse from local space to clip space.
+         * Once in clip space we can retrieve the actual canvas space coords using the inverse view clip space matrix
+         * by using the inverse transform we can get the exact canvas space position of the mouse */
+        this._mousePosition = vec3.fromValues(-1 + 2 * x / this._canvas.width, 1 - 2 * y / this._canvas.height, 1.0);
+
+        // perform the 
         const transformedMouse = vec3.create();
         vec3.transformMat3(transformedMouse, this._mousePosition, this._startDragInverseViewClipMatrix);
 
-        console.log(mat3.str(this._startDragInverseViewClipMatrix));
-        console.log(transformedMouse);
-
         // translate the camera
         if (this._mouseIsDown === true) {
+            /* compute the difference between the canvas space of the mouse before dragging
+             * and the current canvas space position of the mosue */
             const transformedMouse = vec3.create();
             vec3.transformMat3(transformedMouse, this._mousePosition, this._startDragInverseViewClipMatrix);
 
@@ -93,13 +107,15 @@ class Camera {
             vec3.add(this._cameraPosition, this._cameraPosition, this._startDragMousePosition);
             vec3.sub(this._cameraPosition, this._cameraPosition, transformedMouse);
 
-            this._cameraPosition[2] = 1.0;
+            this._cameraPosition[2] = 1.0; // make sure camera position is still in valid homogeneous coords
         }
     }
 
     _onMouseDown(event) {
         this._mouseIsDown = true;
 
+        // save the inverse view clip matrix and camera position and canvas space position of the mouse
+        // when dragging starts
         this._startDragInverseViewClipMatrix = mat3.clone(this._getInverseViewClipMatrix());
         this._startDragCameraPosition = vec3.clone(this._cameraPosition);
 
@@ -115,6 +131,15 @@ class Camera {
         this._canvas.onmousemove = (event) => this._onMouseMove(event);
         this._canvas.onmousedown = (event) => this._onMouseDown(event);
         this._canvas.onmouseup = (event) => this._onMouseUp(event);
+    }
+
+    /**
+     * updates the clip matrix.
+     * To be called when the dimensions of the canvas change
+     * @param {mat3} clipMatrix the new clip matrix
+     */
+    updateClipMatrix(clipMatrix) {
+        this._clipMatrix = clipMatrix;
     }
 
     /**
