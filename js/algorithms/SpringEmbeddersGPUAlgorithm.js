@@ -4,7 +4,7 @@ class SpringEmbeddersGPUAlgorithm {
     constructor(graph, width, height) {
         this._graph = null;
         this._width = width;
-        this._height = height;
+        this._height = height; 
 
         this._properties = {
             speed: 0.01,
@@ -123,7 +123,7 @@ class SpringEmbeddersGPUAlgorithm {
     }
 
     setGraph(graph) {
-        this._graph = graph;
+        this._graph = graph
 
         // an empty graph requires the creation of an empty FBO, which is impossible
         if (this._graph.nodes.length === 0) {
@@ -141,8 +141,8 @@ class SpringEmbeddersGPUAlgorithm {
     }
 
     onCanvasSizeChanged(width, height) {
-        this._width = width;
-        this._height = height;
+        this.width = width;
+        this.height = height;
     }
 
     computeNextPositions() {
@@ -151,21 +151,25 @@ class SpringEmbeddersGPUAlgorithm {
 
         this._kernel.execute();
 
-        //const positions = this._outputTexture.getData();
+        const renderer = ctrl.renderer;
 
-        ctrl.renderer.setPositionsTexture(this._outputTexture);
-
-        /*for (let i = 0; i < this._graph.nodes.length; i++) {
-            const node = this._graph.nodes[i];
-            if (!node.isFixed) {
-                [node.x, node.y] = [positions[i * 2], positions[i * 2 + 1]];
+        if (renderer.supportsDirectRendering()) { // algorithms support reading nodes positions from texture
+            ctrl.renderer.setPositionsTexture(this._outputTexture);
+        }
+        else {
+            const positions = this._outputTexture.getData();
+            for (let i = 0; i < this._graph.nodes.length; i++) {
+                const node = this._graph.nodes[i];
+                if (!node.isFixed) {
+                    [node.x, node.y] = [positions[i * 2], positions[i * 2 + 1]];
+                }
+                else { // fixed node, its position cannot change and the texture must be updated
+                    [positions[i * 2], positions[i * 2 + 1]] = [node.x, node.y];
+                    this._outputTexture.updateData(positions);
+                }
             }
-            else { // fixed node, its position cannot change and the texture must be updated
-                [positions[i * 2], positions[i * 2 + 1]] = [node.x, node.y];
-                this._outputTexture.updateData(positions);
-            }
-        }*/
-
+        }
+        
         // swap input and output
         [this._positionsTexture, this._outputTexture] = [this._outputTexture, this._positionsTexture];
     }

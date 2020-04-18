@@ -109,6 +109,7 @@ class Controller {
             this.renderer = new WebGLRenderer();
         }
 
+        this.renderer.setGraph(this.graph);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 

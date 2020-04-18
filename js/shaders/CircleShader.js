@@ -29,10 +29,10 @@ uniform sampler2D positionsTexture;
 uniform mat3 viewClipMatrix; // converts from canvas space to ndc
 
 // todo become uniform
-float radius = 5.0;
+float radius = 3.0;
 
 void main() {
-    localPosition = vPosition;
+    localPosition = radius * vPosition;
 
     // read the position of the node from the texture
     vec2 center = texelFetch(positionsTexture, ivec2(iPositionsCoords), 0).xy;
@@ -46,14 +46,24 @@ void main() {
 CircleShader._FRAGMENT_SHADER = `#version 300 es
 precision mediump float;
 
+const vec3 NODE_COLOR = vec3(0.678, 1.0, 0.184); // yellowgreen
+const vec3 STROKE_COLOR = vec3(0.0); 
+
 in vec2 localPosition;
 
 out vec4 outColor;
 
-void main() {
-    float p = 1.0 - smoothstep(0.7,
-                               1.0,
-                               dot(localPosition, localPosition));
+float radius = 3.0;
+float strokeWidth = 1.0;
 
-    outColor = vec4(vec3(p, 0.0, 0.0), 1.0);
+void main() {
+    float radius2 = radius * radius;
+    float strokeRadius2 = (radius - strokeWidth) * (radius - strokeWidth);
+
+    float dist2 = dot(localPosition, localPosition);
+
+    float alpha = 1.0 - smoothstep(radius2 * 0.99, radius2, dist2);
+    float stroke = smoothstep(strokeRadius2 * 0.99, strokeRadius2, dist2);
+
+    outColor = vec4(mix(NODE_COLOR, STROKE_COLOR, stroke), alpha);
 }`;

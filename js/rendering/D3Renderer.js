@@ -6,7 +6,6 @@ class D3Renderer {
         .attr("class", "fullscreenCanvas")
         .attr("style", "display: block")
         .call(d3.zoom().on("zoom", () => {
-            console.log(d3.event.transform);
             this._svgGroup.attr("transform", d3.event.transform)
         }))
         .append("g");
@@ -115,6 +114,17 @@ class D3Renderer {
         if (this._renderEdgeLabels === true)
             this._renderLabels(this._graph.edges, "edges", e => [(e.source.x + e.target.x)/2,
                 (e.source.y + e.target.y)/2 - 10]);
+    }
+
+    /**
+     * Direct rendering means that this algorithm can render nodes and edges 
+     * by reading their positions direcly from a texture.
+     * If this method returns true, GPU based algorithm do not need to transfer data
+     * from the GPU to the CPU to update the graph before rendering
+     * @returns whether this renderer supports direct rendering.
+     */
+    supportsDirectRendering() {
+        return false;
     }
 
 }

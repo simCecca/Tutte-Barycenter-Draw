@@ -26,8 +26,11 @@ class WebGLRenderer {
         this._height = 0;
         this._clipMatrix = mat3.create();
 
-        /** A texture that contains the positions of the nodes */
+        /** A texture that contains the positions of the nodes, received from algorithm */
         this._positionsTexture = null;
+
+        /** A texture that contains the positions of the nodes, created from graph */
+        this._fallbackPositionsTexture = null;
 
         /** VAO for nodes */
         this._circleVAO = null;
@@ -40,6 +43,34 @@ class WebGLRenderer {
 
         this._circleShader = new CircleShader();
         this._lineShader = new LineShader();
+    }
+
+    _createFallbackPositionsTextureFromGraph() {
+        const graph = this._graph;
+
+        // We encode N nodes in a matrix whose size is sqrt(n) x sqrt(n)
+        const nodesMatrixSize = Math.ceil(Math.sqrt(graph.nodes.length));
+
+        // the position matrix nodesMatrixSize x nodesMatrixSize x 2: just store x and y
+        const positionsMatrix = new Float32Array(nodesMatrixSize * nodesMatrixSize * 2);
+        positionsMatrix.fill(-10000.0); // a default value that should not interfere with valid nodes
+
+        for (let i = 0; i < graph.nodes.length; i++) {
+            const currentNode = graph.nodes[i];
+            const currentNodePositionIndex = i * 2;
+
+            // store the initial positions
+            positionsMatrix.set([currentNode.x, currentNode.y], currentNodePositionIndex);
+        }
+
+        if (this._fallbackPositionsTexture === null) {
+            this._fallbackPositionsTexture = Texture.createTextureFloat32_2(nodesMatrixSize, nodesMatrixSize, positionsMatrix, true);
+        }
+        else {
+            this._fallbackPositionsTexture.updateData(positionsMatrix);
+        }
+
+        return this._fallbackPositionsTexture;
     }
 
     /**
@@ -151,6 +182,20 @@ class WebGLRenderer {
         // hides the webgl canvas
         this._canvas.classList.remove("fullscreenCanvas");
         this._canvas.style.display = "none";
+
+        if (this._fallbackPositionsTexture !== null) {
+            this._fallbackPositionsTexture.delete();
+        }
+
+        // deletes buffers
+        for (let buffer of this._VBOs) {
+            gl.deleteBuffer(buffer);
+        }
+
+        gl.deleteVertexArray(this._lineVAO);
+        gl.deleteVertexArray(this._circleVAO);
+        this._circleShader.delete();
+        this._lineShader.delete();
     }
 
     setRenderNodeLabels(value) {
@@ -164,6 +209,10 @@ class WebGLRenderer {
     setGraph(graph) {
         this._graph = graph;
 
+        if (this._fallbackPositionsTexture !== null) { // new graph, invalidate fallback texture
+            this._fallbackPositionsTexture.delete();
+            this._fallbackPositionsTexture = null;
+        }
         this._createCircleVAO();
         this._createLineVAO();
         this._setupShaders()
@@ -218,9 +267,13 @@ class WebGLRenderer {
     }
 
     render() {
-        /*if (this._positionsTexture === null) {
-            throw new Error("oh sheeet");
-        }*/
+        // enable alpha blending
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+        if (this._positionsTexture === null) {
+            this._positionsTexture = this._createFallbackPositionsTextureFromGraph();
+        }
         const viewClipMatrix = mat3.create();
         mat3.mul(viewClipMatrix, this._clipMatrix, this._camera.getViewMatrix());
 
@@ -237,5 +290,22 @@ class WebGLRenderer {
         this._renderNodes(viewClipMatrix);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
+
+        // used and now expired
+        this._positionsTexture = null;
+
+        // disable alpha blending
+        gl.disable(gl.BLEND);
+    }
+
+    /**
+     * Direct rendering means that this algorithm can render nodes and edges 
+     * by reading their positions direcly from a texture.
+     * If this method returns true, GPU based algorithm do not need to transfer data
+     * from the GPU to the CPU to update the graph before rendering
+     * @returns whether this renderer supports direct rendering.
+     */
+    supportsDirectRendering() {
+        return true;
     }
 }
