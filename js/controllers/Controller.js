@@ -9,6 +9,8 @@ class Controller {
 
         this.loader = new GraphLoader();
 
+        this._animationFrameId = null;
+
         this.setSpringEmbeddersSettingsVisibility(false);
         this._timeStamp = 0;
     }
@@ -68,6 +70,12 @@ class Controller {
         document.getElementById("totalTime").innerText = totalTime.toFixed(3);
         document.getElementById("algoTime").innerText = timeToCompute.toFixed(3);
         document.getElementById("renderTime").innerText = timeToRender.toFixed(3);
+    }
+
+    _resetStats() {
+        document.getElementById("totalTime").innerText = "";
+        document.getElementById("algoTime").innerText = "";
+        document.getElementById("renderTime").innerText = "";
     }
 
     onPredefinedGraphSelectChange(value) {
@@ -143,6 +151,9 @@ class Controller {
     }
 
     drawGraph(graph) {
+        cancelAnimationFrame(this._animationFrameId);
+        this._resetStats();
+
         this.graph = graph;
         this.closeNav();
 
@@ -153,31 +164,30 @@ class Controller {
         let totalTimeToCompute = 0;
         let totalTimeToRender = 0;
         let totalTime = 0;
-        const renderFunction = () => {
-            totalTime += performance.now() - this._timeStamp;
-            this._timeStamp = performance.now();
+        const renderFunction = (now) => {
+            totalTime += now - this._timeStamp;
+            this._timeStamp = now;
 
             const timeBeforeComputing = performance.now()
             this.algorithm.computeNextPositions();
             totalTimeToCompute += performance.now() - timeBeforeComputing;
-
 
             const timeBeforeRendering = performance.now();
             this.renderer.render();
             totalTimeToRender += performance.now() - timeBeforeRendering;
 
             numberOfFrames++;
-            if (numberOfFrames % 100 === 0) {
+            if (numberOfFrames % 10 === 0) { // update stats every 10 frames
                 this._updateStats(totalTime / numberOfFrames, totalTimeToCompute / numberOfFrames, totalTimeToRender / numberOfFrames);
-
-                totalTime = 0;
+                numberOfFrames = 0;
                 totalTimeToCompute = 0;
                 totalTimeToRender = 0;
+                totalTime = 0;
             }
-            requestAnimationFrame(renderFunction);
+            this._animationFrameId = requestAnimationFrame(renderFunction);
         };
 
-        requestAnimationFrame(renderFunction);
+        this._animationFrameId = requestAnimationFrame(renderFunction);
     }
 }
 

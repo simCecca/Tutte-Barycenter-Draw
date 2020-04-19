@@ -70,12 +70,12 @@ class GraphGLMFromServerLoader{
     }
 
     async loadGML(path){
-
-        //load the gml file from the c++ server
+        // load the gml file from the c++ server
         const textGml = await this._fetchGML(path);
 
-        //parse the gml to json
+        // parse the gml to json
         var parsedGraph = this._parseGML(textGml);
+
         return parsedGraph;
     }
 

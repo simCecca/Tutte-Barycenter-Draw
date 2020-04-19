@@ -29,7 +29,7 @@ class RaphsonNewtonAlgorithm {
         // remove unlock fixed nodes
         this._graph.nodes.forEach(node => { node.isFixed = false; });
 
-        const externalFace = this._graph.computeExternalFace();
+        const externalFace = this._graph.computeExternalFace(false);
 
         const numberOfNodes = externalFace.length;
         const slice = (2 * Math.PI) / numberOfNodes;
