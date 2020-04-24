@@ -6,7 +6,7 @@
  * Most of the code used for pan and zoom is taken from here https://stackoverflow.com/questions/57892652/webgl-2d-camera-zoom-to-mouse-point,
  * thanks gman
  */
-class Camera {
+export class Camera {
 
     static _ZOOM_FACTOR = 1.125;
 

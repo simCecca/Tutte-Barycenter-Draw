@@ -1,8 +1,10 @@
+import { Kernel } from './Kernel.js';
+
 /**
  * Kernel to compute graph layout based on the spring embedders algorithm.
  * The GPU algorithm is based on the paper https://www.labri.fr/perso/melancon/Visual_Analytics_Course/lib/exe/fetch.php?media=bordeaux20132014:auber_chiricota_2007_gpu.pdf
  */
-class SpringEmbeddersKernel extends Kernel {
+export class SpringEmbeddersKernel extends Kernel {
 
     constructor() {
         super(SpringEmbeddersKernel.kernelCode);
@@ -15,7 +17,7 @@ class SpringEmbeddersKernel extends Kernel {
         this._shader.setFloat("speed", properties.speed);
         this._shader.setFloat("springDampening", properties.springDampening);
         this._shader.setFloat("springRestLength", properties.springRestLength);
-        this._shader.setFloat("charge2", properties.charge * properties.charge); // already multiplied by 2
+        this._shader.setFloat("charge2", properties.charge * properties.charge); // already to the power of 2
 
         this._shader.stop();
     }

@@ -1,7 +1,9 @@
+import { Shader } from './Shader.js';
+
 /**
  * Simple shader to draw lines.
  */
-class LineShader extends Shader {
+export class LineShader extends Shader {
 
     constructor() {
         super(LineShader._VERTEX_SHADER, LineShader._FRAGMENT_SHADER);

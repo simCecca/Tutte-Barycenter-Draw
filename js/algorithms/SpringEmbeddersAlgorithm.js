@@ -1,5 +1,5 @@
 
-class SpringEmbeddersAlgorithm {
+export class SpringEmbeddersAlgorithm {
 
     constructor(graph, width, height){
         this.graph = null;

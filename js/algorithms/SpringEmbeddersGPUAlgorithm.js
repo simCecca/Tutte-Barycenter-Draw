@@ -1,5 +1,7 @@
+import { SpringEmbeddersKernel } from '../kernels/SpringEmbeddersKernel.js';
+import { Texture } from '../kernels/Texture.js';
 
-class SpringEmbeddersGPUAlgorithm {
+export class SpringEmbeddersGPUAlgorithm {
 
     constructor(graph, width, height) {
         this._graph = null;

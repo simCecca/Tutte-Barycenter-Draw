@@ -1,7 +1,10 @@
+import { Shader } from '../shaders/Shader.js';
+import { gl } from '../webGL/webGL.js';
+
 /**
  * A function that is executed on the GPU.
  */
-class Kernel {
+export class Kernel {
 
     /**
      * Simple vertex shader used by all kernels.

@@ -11,24 +11,6 @@
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
-    <script src="js/shaders/Shader.js"></script>
-    <script src="js/shaders/CircleShader.js"></script>
-    <script src="js/shaders/LineShader.js"></script>
-    <script src="js/kernels/Texture.js"></script>
-    <script src="js/kernels/Kernel.js"></script>
-    <script src="js/kernels/SpringEmbeddersKernel.js"></script>
-    <script src="js/graph/GraphFileLoader.js"></script>
-    <script src="js/algorithms/RaphsonNewtonAlgorithm.js"></script>
-    <script src="js/algorithms/SpringEmbeddersAlgorithm.js"></script>
-    <script src="js/algorithms/SpringEmbeddersGPUAlgorithm.js"></script>
-    <script src="js/rendering/D3Renderer.js"></script>
-    <script src="js/rendering/WebGLRenderer.js"></script>
-    <script src="js/rendering/Camera.js"></script>
-    <script src="js/graph/Edge.js"></script>
-    <script src="js/graph/Node.js"></script>
-    <script src="js/graph/Graph.js"></script>
-    <script src="js/graph/GraphLoader.js"></script>
-    <script src="js/graph/GraphGLMFromServerLoader.js"></script>
 
 </head>
 <body>
@@ -74,10 +56,10 @@
 
             <section>
                 <h3>Algorithm</h3>
-                <select onchange="ctrl.onAlgorithmChanged(this.value)">
-                    <option value="Tutte" selected>Tutte Barycenter</option>
-                    <option value="SpringEmbedders">Spring Embedders</option>
-                    <option value="SpringEmbeddersGPU">Spring Embedders GPU</option>
+                <select onchange="ctrl.onAlgorithmChanged(this.value)" id="algorithm_list">
+                    <option value="Tutte" selected id="tutte_algo">Tutte Barycenter</option>
+                    <option value="SpringEmbedders" id="spring_embedders_algo">Spring Embedders</option>
+                    <option value="SpringEmbeddersGPU" id="spring_embedders_gpu_algo">Spring Embedders GPU</option>
                 </select>
 
                 <h4>Algorithm Settings</h4>
@@ -98,9 +80,9 @@
             <section>
                 <h3>Rendering</h3>
 
-                <select onchange="ctrl.onRendererChanged(this.value)">
-                    <option value="d3" selected>d3.js renderer</option>
-                    <option value="webgl">WebGL batch renderer</option>
+                <select onchange="ctrl.onRendererChanged(this.value)" id="renderer_list">
+                    <option value="d3" selected id="d3_renderer">d3.js renderer</option>
+                    <option value="webgl" id="webgl_renderer">WebGL batch renderer</option>
                 </select>
 
                 <h4>Labels</h4>
@@ -112,7 +94,7 @@
                 <h3>Stats</h3>
                 <span>Algorithm time: </span><span id="algoTime"></span><span> ms</span><br />
                 <span>Render time: </span><span id="renderTime"></span><span> ms</span><br />
-                <span>Total time: </span><span id="totalTime"></span><span> ms</span></span>
+                <span>Total time: </span><span id="totalTime"></span><span> ms</span>
             </section>
 
         </div>
@@ -125,25 +107,33 @@
         <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeErrorDialog()">&times;</a>
     </div>
 
-    <script src="js/controllers/Controller.js"></script>
-    <script>
-        ctrl.openNav();
+    <script type="module">
+        import { ctrl } from './js/controllers/Controller.js';
+        import { gl, compatibility } from './js/webGL/webGL.js';
+        window.ctrl = ctrl; // make it available to dom objects
 
-        // todo plz move me into a function
-        gl = document.getElementById("canvas").getContext("webgl2");
-        if (!gl) {
+        if (!compatibility.webGL2) {
             ctrl.showError("Your browser does not support WebGL2. GPU based algorithms and rendering will not be available");
+            document.getElementById('spring_embedders_gpu_algo').disabled = true;
+            document.getElementById('webgl_renderer').disabled = true;
         }
         else {
-            gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
-            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+            // webgl2 enabled, select batch renderer
+            document.getElementById('renderer_list').value = "webgl";
+            document.getElementById('renderer_list').onchange();
 
-            const colorBufferFloatExtension = gl.getExtension("EXT_color_buffer_float");
-            if (!colorBufferFloatExtension) {
+            if (!compatibility.colorBufferFloatExtension) {
                 ctrl.showError(`Your browser does not support floating point buffers.
-                GPU based algorithm will not be available`);
+                    GPU based algorithm will not be available`);
+            }
+            else {
+                // render to float buffer enabled, select spring embedders gpu as default
+                document.getElementById('algorithm_list').value = "SpringEmbeddersGPU";
+                document.getElementById('algorithm_list').onchange();
             }
         }
+
+        ctrl.openNav();
     </script>
 
 </body>

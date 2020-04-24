@@ -1,9 +1,8 @@
 
 /**
  * This class represent a node of the Graph and its information
- * */
-
-class Node {
+ */
+export class Node {
     constructor(id, label) {
         this.x = 0;
         this.y = 0;
@@ -20,5 +19,4 @@ class Node {
     addNeighbour(neighbour) {
         this.neighbours.push(neighbour);
     }
-
 }

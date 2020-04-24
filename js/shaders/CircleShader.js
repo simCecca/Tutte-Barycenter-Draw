@@ -1,7 +1,9 @@
+import { Shader } from './Shader.js';
+
 /**
  * Simple shader to draw circles.
  */
-class CircleShader extends Shader {
+export class CircleShader extends Shader {
 
     constructor() {
         super(CircleShader._VERTEX_SHADER, CircleShader._FRAGMENT_SHADER);

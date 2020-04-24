@@ -1,5 +1,19 @@
+import { CircleShader } from '../shaders/CircleShader.js';
+import { LineShader } from '../shaders/LineShader.js';
+import { Texture } from '../kernels/Texture.js';
+import { Camera } from './Camera.js';
+import { gl } from '../webGL/webGL.js';
 
-class WebGLRenderer {
+/**
+ * WebGL renderer.
+ * This renderer batches together nodes and edges.
+ * Moreover, this renderer can read nodes positions directly from a Texture
+ * so that GPU based algorithm do not have to retrieve their data from the GPU.
+ * Node positions texture should be set before calling the render method
+ * by using the setPositionTexture method. If the position texture is not set
+ * the nodes position will be taken from the graph provided using setGraph.
+ */
+export class WebGLRenderer {
 
     /**
      * Vertices of a quad, used as the only mesh for rendering

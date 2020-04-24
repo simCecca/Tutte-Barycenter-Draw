@@ -1,5 +1,11 @@
 
-class GraphLoader {
+import { GraphFileLoader } from './GraphFileLoader.js';
+import { GraphGLMFromServerLoader } from './GraphGLMFromServerLoader.js';
+import { Graph } from './Graph.js';
+import { Node } from './Node.js';
+import { Edge } from './Edge.js';
+
+export class GraphLoader {
 
     async loadEncodedFromServer(path) {
         const response = await fetch(path);

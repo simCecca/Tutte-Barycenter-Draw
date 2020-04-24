@@ -1,3 +1,11 @@
+import { Graph } from '../graph/Graph.js';
+import { GraphLoader } from '../graph/GraphLoader.js';
+import { WebGLRenderer } from '../rendering/WebGLRenderer.js';
+import { D3Renderer } from '../rendering/D3Renderer.js';
+import { RaphsonNewtonAlgorithm } from '../algorithms/RaphsonNewtonAlgorithm.js';
+import { SpringEmbeddersAlgorithm } from '../algorithms/SpringEmbeddersAlgorithm.js';
+import { SpringEmbeddersGPUAlgorithm } from '../algorithms/SpringEmbeddersGPUAlgorithm.js';
+
 class Controller {
 
     constructor() {
@@ -191,4 +199,4 @@ class Controller {
     }
 }
 
-const ctrl = new Controller();
+export const ctrl = new Controller();

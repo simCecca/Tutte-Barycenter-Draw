@@ -1,5 +1,5 @@
 
-class Edge{
+export class Edge {
 
     constructor(source, target, label="", directed = false){
         this.source = source;
@@ -7,5 +7,4 @@ class Edge{
         this.label = label;
         this.directed = directed;
     }
-
 }

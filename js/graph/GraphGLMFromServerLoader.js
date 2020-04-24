@@ -1,4 +1,5 @@
-class GraphGLMFromServerLoader{
+
+export class GraphGLMFromServerLoader{
     async _fetchGML(path) {
         const gml = await fetch(path);
 
@@ -78,5 +79,4 @@ class GraphGLMFromServerLoader{
 
         return parsedGraph;
     }
-
 }

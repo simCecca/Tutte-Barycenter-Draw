@@ -1,7 +1,9 @@
+import { gl } from '../webGL/webGL.js';
+
 /**
  * A buffer for exchanging data with the GPU.
  */
-class Texture {
+export class Texture {
     /**
      * Creates a Texture that, for each pixel, contains 4 Uint8.
      * This version should be preferred to other Uint8 textures as

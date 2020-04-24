@@ -1,5 +1,5 @@
 
-class D3Renderer {
+export class D3Renderer {
 
     constructor() {
         this._svgGroup = d3.select("#svgCanvas")
@@ -126,5 +126,4 @@ class D3Renderer {
     supportsDirectRendering() {
         return false;
     }
-
 }

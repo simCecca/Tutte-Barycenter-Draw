@@ -1,8 +1,7 @@
 /**
  This class is responsible for loading a graph stored into a file on
  the client's filesystem. */
-
-class GraphFileLoader {
+export class GraphFileLoader {
 
     load(file) {
         const reader = new FileReader();
@@ -19,5 +18,4 @@ class GraphFileLoader {
 
         return resultPromise;
     }
-
 }

@@ -1,10 +1,12 @@
 
+import { gl } from '../webGL/webGL.js';
+
 /**
  * Shader util class. Used to create shaders.
  * 
  * Some parts of this code are taken from webgl2fundamentals.org
  */
-class Shader {
+export class Shader {
     /**
      * Creates and compiles a shader.
      * @param {string} shaderSource The GLSL source code for the shader.

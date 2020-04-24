@@ -1,5 +1,5 @@
 
-class RaphsonNewtonAlgorithm {
+export class RaphsonNewtonAlgorithm {
 
     constructor(graph, width, height){
         this._graph = null;
