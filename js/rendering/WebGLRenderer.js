@@ -234,7 +234,10 @@ export class WebGLRenderer {
 
     setSize(width, height) {
         // we need to update the size of the canvas. Using css 100% will just
-        // scale the canvas without changing the size of the framebuffer https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+        // scale the canvas without changing the size of the framebuffer https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html        
+        width *= window.devicePixelRatio;
+        height *= window.devicePixelRatio;
+        
         this._canvas.width = width;
         this._canvas.height = height;
 
