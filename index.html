@@ -123,6 +123,7 @@
             document.getElementById('renderer_list').onchange();
 
             if (!compatibility.colorBufferFloatExtension) {
+                document.getElementById('spring_embedders_gpu_algo').disabled = true;
                 ctrl.showError(`Your browser does not support floating point buffers.
                     GPU based algorithm will not be available`);
             }
