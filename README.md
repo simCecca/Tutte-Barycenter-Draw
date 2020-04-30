@@ -38,7 +38,7 @@ Number of nodes / _time for step_ (ms) | GPU algorithm | CPU Algorithm | speedup
 10K                                    | 2.3           | 1523.2        | 662.2
 20K                                    | 7.8           | 5447.8        | 698.4
 40K                                    | 28.3          | 25308.8       | 894.3
-50K                                    | 0             | 0             |
+50K                                    | 41.7          | n/a           | n/a
 
 _time for step_ is the total time to render a frame. It includes the time required to compute the next position for all the nodes of the graph and the actual time to render the graph: `algorithm + rendering`.
 
