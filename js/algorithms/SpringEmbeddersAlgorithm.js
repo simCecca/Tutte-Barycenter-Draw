@@ -65,13 +65,14 @@ export class SpringEmbeddersAlgorithm {
             });
 
             // electric charges
+            const charge2 = this.charge * this.charge;
             this.graph.nodes.forEach((other) => {
                 if (node === other) {
                     return;
                 }
                 const distance = this._getDistance(node, other);
 
-                const repulsion = (this.charge * this.charge) / (distance * distance);
+                const repulsion = charge2 / (distance * distance);
 
                 forceX -= repulsion * ((other.x - node.x) / distance);
                 forceY -= repulsion * ((other.y - node.y) / distance);
