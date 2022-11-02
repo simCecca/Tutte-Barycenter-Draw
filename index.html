@@ -1,50 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="css/controlStyle.css">
-    <link rel="stylesheet" type="text/css" href="css/graphStyle.css">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="css/controlStyle.css" />
+    <link rel="stylesheet" type="text/css" href="css/graphStyle.css" />
 
     <title>Graph toolkit</title>
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
-
-</head>
-<body>
+  </head>
+  <body>
     <svg id="svgCanvas" onclick="ctrl.closeNav()"></svg>
-    <canvas id="canvas" onclick="ctrl.closeNav()" style="display: none;"></canvas>
+    <canvas
+      id="canvas"
+      onclick="ctrl.closeNav()"
+      style="display: none"
+    ></canvas>
 
     <span class="optionsbtn" onclick="ctrl.openNav()">&#9776; options</span>
 
     <div id="sidemenu" class="sidenav">
-        <div class="sidenavContent">
-            <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeNav()">&times;</a>
+      <div class="sidenavContent">
+        <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeNav()"
+          >&times;</a
+        >
 
-            <section>
-                <h3>Choose a graph</h3>
-                <h4>Load graph</h4>
-                <input type="file" value="Choose a graph" onchange="ctrl.onFileSelect(event)">
+        <section>
+          <h3>Choose a graph</h3>
+          <h4>Load graph</h4>
+          <input
+            type="file"
+            value="Choose a graph"
+            onchange="ctrl.onFileSelect(event)"
+          />
 
-                <h4>Predefined graphs</h4>
-                <select onchange="ctrl.onPredefinedGraphSelectChange(this.value)">
-                    <option value="" selected disabled>Choose a predefined graph</option>
-                    <option value="./defaultGraphs/adam.json">adam</option>
-                    <option value="./defaultGraphs/adam_directed.json">adam directed</option>
-                    <option value="./defaultGraphs/rect.json">rect</option>
-                    <option value="./defaultGraphs/100_nodes.json">100 nodes</option>
-                    <option value="./defaultGraphs/500_nodes.json">500 nodes</option>
-                    <option value="./defaultGraphs/1k_nodes.json">1k nodes</option>
-                    <option value="./defaultGraphs/5k_nodes.json">5k nodes</option>
-                    <option value="./defaultGraphs/10k_nodes.json">10k nodes</option>
-                    <option value="./defaultGraphs/20k_nodes.json">20k nodes</option>
-                    <option value="./defaultGraphs/30k_nodes.json">30k nodes</option>
-                    <option value="./defaultGraphs/40k_nodes.json">40k nodes</option>
-                    <option value="./defaultGraphs/50k_nodes.json">50k nodes</option>
-                </select>
-                <!--                 <h4>From Server</h4>
+          <h4>Predefined graphs</h4>
+          <select onchange="ctrl.onPredefinedGraphSelectChange(this.value)">
+            <option value="" selected disabled>
+              Choose a predefined graph
+            </option>
+            <option value="./defaultGraphs/adam.json">adam</option>
+            <option value="./defaultGraphs/adam_directed.json">
+              adam directed
+            </option>
+            <option value="./defaultGraphs/rect.json">rect</option>
+            <option value="./defaultGraphs/100_nodes.json">100 nodes</option>
+            <option value="./defaultGraphs/500_nodes.json">500 nodes</option>
+            <option value="./defaultGraphs/1k_nodes.json">1k nodes</option>
+            <option value="./defaultGraphs/5k_nodes.json">5k nodes</option>
+            <option value="./defaultGraphs/10k_nodes.json">10k nodes</option>
+            <option value="./defaultGraphs/20k_nodes.json">20k nodes</option>
+            <option value="./defaultGraphs/30k_nodes.json">30k nodes</option>
+            <option value="./defaultGraphs/40k_nodes.json">40k nodes</option>
+            <option value="./defaultGraphs/50k_nodes.json">50k nodes</option>
+          </select>
+          <!--                 <h4>From Server</h4>
                 <span>Server location:</span>
                 <input type="text" value="localhost:1234/graph" placeholder="name:port" id="serverLocation"><br />
                 <span>Nodes: </span><input class="controllerInput" type="number" placeholder="#nodes" value="10" id="numOfNodes">
@@ -52,91 +64,156 @@
                 <br><br>
                 <input type="button" value="get from server" onclick="ctrl.onGetFromServer()">
                 -->
+        </section>
 
-            </section>
+        <section>
+          <h3>Algorithm</h3>
+          <select
+            onchange="ctrl.onAlgorithmChanged(this.value)"
+            id="algorithm_list"
+          >
+            <option value="Tutte" selected id="tutte_algo">
+              Tutte Barycenter
+            </option>
+            <option value="SpringEmbedders" id="spring_embedders_algo">
+              Spring Embedders
+            </option>
+            <option value="SpringEmbeddersTrans" id="spring_embedders_trans">
+              Spring Embedders Transferrable
+            </option>
+            <option value="SpringEmbeddersGPU" id="spring_embedders_gpu_algo">
+              Spring Embedders GPU
+            </option>
+          </select>
 
-            <section>
-                <h3>Algorithm</h3>
-                <select onchange="ctrl.onAlgorithmChanged(this.value)" id="algorithm_list">
-                    <option value="Tutte" selected id="tutte_algo">Tutte Barycenter</option>
-                    <option value="SpringEmbedders" id="spring_embedders_algo">Spring Embedders</option>
-                    <option value="SpringEmbeddersGPU" id="spring_embedders_gpu_algo">Spring Embedders GPU</option>
-                </select>
+          <h4>Algorithm Settings</h4>
 
-                <h4>Algorithm Settings</h4>
+          <span>Speed:</span><br />
+          <input
+            type="range"
+            min="1"
+            max="1000"
+            value="1000"
+            oninput="ctrl.onAlgorithmSpeedChanged(this.value)"
+            onchange="ctrl.onAlgorithmSpeedChanged(this.value)"
+            id="algorithmSpeed"
+          />
+          <span id="renderSpeed">100%</span>
 
-                <span>Speed:</span><br/>
-                <input type="range" min="1" max="1000" value="1000" oninput="ctrl.onAlgorithmSpeedChanged(this.value)"
-                    onchange="ctrl.onAlgorithmSpeedChanged(this.value)" id="algorithmSpeed">
-                <span id="renderSpeed">100%</span>
+          <div id="springEmbeddersSettings" style="margin-top: 15px">
+            <span>Spring Rest Length: </span
+            ><input
+              class="controllerInput"
+              type="number"
+              value="15"
+              id="springRestLength"
+            /><br />
+            <span>Spring Dampening: </span
+            ><input
+              class="controllerInput"
+              type="number"
+              value="0.125"
+              step="0.01"
+              id="springDampening"
+            /><br />
+            <span>Charge: </span
+            ><input
+              class="controllerInput"
+              type="number"
+              value="75"
+              id="charge"
+            /><br />
+            <input
+              type="button"
+              value="Apply"
+              onclick="ctrl.onConfirmSpringEmbeddersSettings()"
+            />
+          </div>
+        </section>
 
-                <div id="springEmbeddersSettings" style="margin-top: 15px;">
-                    <span>Spring Rest Length: </span><input class="controllerInput" type="number" value="15" id="springRestLength"><br />
-                    <span>Spring Dampening: </span><input class="controllerInput" type="number" value="0.125" step="0.01" id="springDampening"><br />
-                    <span>Charge: </span><input class="controllerInput" type="number" value="75" id="charge"><br />
-                    <input type="button" value="Apply" onclick="ctrl.onConfirmSpringEmbeddersSettings()">
-                </div>
-            </section>
+        <section>
+          <h3>Rendering</h3>
 
-            <section>
-                <h3>Rendering</h3>
+          <select
+            onchange="ctrl.onRendererChanged(this.value)"
+            id="renderer_list"
+          >
+            <option value="d3" selected id="d3_renderer">d3.js renderer</option>
+            <option value="webgl" id="webgl_renderer">
+              WebGL batch renderer
+            </option>
+          </select>
 
-                <select onchange="ctrl.onRendererChanged(this.value)" id="renderer_list">
-                    <option value="d3" selected id="d3_renderer">d3.js renderer</option>
-                    <option value="webgl" id="webgl_renderer">WebGL batch renderer</option>
-                </select>
+          <h4>Labels</h4>
+          <label
+            ><input
+              type="checkbox"
+              onchange="ctrl.onShowNodeLabelsChange(this)"
+            />Show node labels</label
+          ><br />
+          <label
+            ><input
+              type="checkbox"
+              onchange="ctrl.onShowEdgeLabelsChange(this)"
+            />Show edge labels</label
+          >
+        </section>
 
-                <h4>Labels</h4>
-                <label><input type="checkbox" onchange="ctrl.onShowNodeLabelsChange(this)">Show node labels</label><br />
-                <label><input type="checkbox" onchange="ctrl.onShowEdgeLabelsChange(this)">Show edge labels</label>
-            </section>
-
-            <section>
-                <h3>Stats</h3>
-                <span>Algorithm time: </span><span id="algoTime"></span><span> ms</span><br />
-                <span>Render time: </span><span id="renderTime"></span><span> ms</span><br />
-                <span>Total time: </span><span id="totalTime"></span><span> ms</span>
-            </section>
-
-        </div>
+        <section>
+          <h3>Stats</h3>
+          <span>Algorithm time: </span><span id="algoTime"></span
+          ><span> ms</span><br />
+          <span>Render time: </span><span id="renderTime"></span><span> ms</span
+          ><br />
+          <span>Total time: </span><span id="totalTime"></span><span> ms</span>
+        </section>
+      </div>
     </div>
 
     <div id="errorDialog" class="errorDialog">
-        <h1>Ops!</h1>
-        <p id="errorMsg">Hi :) (if you are seeing this message something went wrong but we were too lazy to
-            set an error message for it. If I were you I would open the console)</p>
-        <a href="javascript:void(0)" class="closebtn" onclick="ctrl.closeErrorDialog()">&times;</a>
+      <h1>Ops!</h1>
+      <p id="errorMsg">
+        Hi :) (if you are seeing this message something went wrong but we were
+        too lazy to set an error message for it. If I were you I would open the
+        console)
+      </p>
+      <a
+        href="javascript:void(0)"
+        class="closebtn"
+        onclick="ctrl.closeErrorDialog()"
+        >&times;</a
+      >
     </div>
 
     <script type="module">
-        import { ctrl } from './js/controllers/Controller.js';
-        import { gl, compatibility } from './js/webGL/webGL.js';
-        window.ctrl = ctrl; // make it available to dom objects
+      import { ctrl } from "./js/controllers/Controller.js";
+      import { gl, compatibility } from "./js/webGL/webGL.js";
+      window.ctrl = ctrl; // make it available to dom objects
 
-        if (!compatibility.webGL2) {
-            ctrl.showError("Your browser does not support WebGL2. GPU based algorithms and rendering will not be available");
-            document.getElementById('spring_embedders_gpu_algo').disabled = true;
-            document.getElementById('webgl_renderer').disabled = true;
-        }
-        else {
-            // webgl2 enabled, select batch renderer
-            document.getElementById('renderer_list').value = "webgl";
-            document.getElementById('renderer_list').onchange();
+      if (!compatibility.webGL2) {
+        ctrl.showError(
+          "Your browser does not support WebGL2. GPU based algorithms and rendering will not be available"
+        );
+        document.getElementById("spring_embedders_gpu_algo").disabled = true;
+        document.getElementById("webgl_renderer").disabled = true;
+      } else {
+        // webgl2 enabled, select batch renderer
+        document.getElementById("renderer_list").value = "webgl";
+        document.getElementById("renderer_list").onchange();
 
-            if (!compatibility.colorBufferFloatExtension) {
-                document.getElementById('spring_embedders_gpu_algo').disabled = true;
-                ctrl.showError(`Your browser does not support floating point buffers.
+        if (!compatibility.colorBufferFloatExtension) {
+          document.getElementById("spring_embedders_gpu_algo").disabled = true;
+          ctrl.showError(`Your browser does not support floating point buffers.
                     GPU based algorithm will not be available`);
-            }
-            else {
-                // render to float buffer enabled, select spring embedders gpu as default
-                document.getElementById('algorithm_list').value = "SpringEmbeddersGPU";
-                document.getElementById('algorithm_list').onchange();
-            }
+        } else {
+          // render to float buffer enabled, select spring embedders gpu as default
+          document.getElementById("algorithm_list").value =
+            "SpringEmbeddersGPU";
+          document.getElementById("algorithm_list").onchange();
         }
+      }
 
-        ctrl.openNav();
+      ctrl.openNav();
     </script>
-
-</body>
+  </body>
 </html>
