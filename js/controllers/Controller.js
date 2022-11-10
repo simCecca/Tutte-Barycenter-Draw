@@ -1,11 +1,12 @@
-import { Graph } from "../graph/Graph.js";
-import { GraphLoader } from "../graph/GraphLoader.js";
+import { Graph } from "../dataStructures/graph/Graph.js";
+import { GraphLoader } from "../dataStructures/graph/GraphLoader.js";
 import { WebGLRenderer } from "../rendering/WebGLRenderer.js";
 import { D3Renderer } from "../rendering/D3Renderer.js";
 import { RaphsonNewtonAlgorithm } from "../algorithms/RaphsonNewtonAlgorithm.js";
 import { SpringEmbeddersAlgorithm } from "../algorithms/springEmbedders/SpringEmbeddersAlgorithm.js";
 import { SpringEmbeddersTransferrable } from "../algorithms/springEmbedders/SpringEmbeddersWorkerTransferrable.js";
 import { SpringEmbeddersGPUAlgorithm } from "../algorithms/springEmbedders/SpringEmbeddersGPUAlgorithm.js";
+import { BarnesHut } from "../algorithms/barnesHut/BarnesHut.js";
 
 class Controller {
   constructor() {
@@ -141,6 +142,13 @@ class Controller {
         window.innerHeight
       );
       this.setSpringEmbeddersSettingsVisibility(true);
+    } else if (value === "BarnesHut") {
+      this.algorithm = new BarnesHut(
+        this.graph,
+        window.innerWidth,
+        window.innerHeight
+      );
+      this.setSpringEmbeddersSettingsVisibility(true);
     }
 
     this.algorithm.setProperties(this._readAlgorithmProperties());
@@ -194,7 +202,9 @@ class Controller {
 
   drawGraph(graph) {
     cancelAnimationFrame(this._animationFrameId);
-    this.algorithm.onRemove();
+    if (this.algorithm.reset) {
+      this.algorithm.reset();
+    }
     this._resetStats();
 
     this.graph = graph;
