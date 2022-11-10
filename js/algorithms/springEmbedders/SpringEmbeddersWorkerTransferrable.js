@@ -37,7 +37,7 @@ export class SpringEmbeddersTransferrable {
     this.springDampening = properties.springDampening || this.springDampening;
     this.springRestLength =
       properties.springRestLength || this.springRestLength;
-    this.charge = properties.charge;
+    this.charge = properties.charge * properties.charge;
   }
 
   setGraph(graph) {
@@ -139,7 +139,7 @@ export class SpringEmbeddersTransferrable {
     });
   };
 
-  onRemove = () => {
+  reset = () => {
     this.vaitUntilStructureReady = true;
     this.threads.forEach((thread) => {
       thread.terminate();
@@ -147,6 +147,8 @@ export class SpringEmbeddersTransferrable {
     this.threads = []; // Array<Worker>
     this.threadData = []; // Array<ThreadData>
   };
+
+  onRemove = () => {};
 
   _createThreads = () => {
     for (let i = 0; i < this.threadsNumber; i++) {
