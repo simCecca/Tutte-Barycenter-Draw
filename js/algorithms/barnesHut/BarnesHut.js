@@ -31,6 +31,7 @@ export class BarnesHut {
     this.springRestLength =
       properties.springRestLength || this.springRestLength;
     this.charge = properties.charge * properties.charge;
+    this.theta = properties.theta || this.theta;
   }
 
   setGraph(graph) {

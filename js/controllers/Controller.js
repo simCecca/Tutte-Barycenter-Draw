@@ -79,12 +79,17 @@ class Controller {
       document.getElementById("springDampening").value
     );
     const charge = parseFloat(document.getElementById("charge").value);
-    return {
+    const newParams = {
       speed,
       springRestLength,
       springDampening,
       charge,
     };
+    const theta = document.getElementById("theta");
+    if (theta) {
+      newParams.theta = theta.value;
+    }
+    return newParams;
   }
 
   _updateStats(totalTime, timeToCompute, timeToRender) {
@@ -143,12 +148,18 @@ class Controller {
       );
       this.setSpringEmbeddersSettingsVisibility(true);
     } else if (value === "BarnesHut") {
+      this._addTheta();
+
       this.algorithm = new BarnesHut(
         this.graph,
         window.innerWidth,
         window.innerHeight
       );
       this.setSpringEmbeddersSettingsVisibility(true);
+    }
+
+    if (value != "BarnesHut") {
+      this._removeTheta();
     }
 
     this.algorithm.setProperties(this._readAlgorithmProperties());
@@ -247,6 +258,27 @@ class Controller {
 
     this._animationFrameId = requestAnimationFrame(renderFunction);
   }
+
+  _addTheta = () => {
+    const father = document.getElementById("thetaFather");
+    const theta = document.createElement("input");
+    theta.type = "number";
+    theta.value = 0.5;
+    theta.className = "controllerInput";
+    theta.id = "theta";
+    const text = document.createElement("span");
+    text.textContent = "Theta: ";
+    text.id = "thetaText";
+    father.appendChild(text);
+    father.appendChild(theta);
+  };
+
+  _removeTheta = () => {
+    const father = document.getElementById("thetaFather");
+    while (father.firstChild) {
+      father.removeChild(father.firstChild);
+    }
+  };
 }
 
 export const ctrl = new Controller();
